@@ -55,7 +55,12 @@ public class ChessPiece {
      *
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return new ArrayList<>();
+        ChessPiece newPiece = new ChessPiece(this.pieceColor,this.type);
+        PieceMovesCalculator calculator = new PieceMovesCalculator(newPiece);
+
+        Collection<ChessMove> chessMoves = calculator.pieceMoves(board,myPosition);
+
+        return chessMoves;
     }
 
     public void setPieceType(PieceType p) {
