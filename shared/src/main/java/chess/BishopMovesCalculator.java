@@ -8,10 +8,12 @@ public class BishopMovesCalculator {
 
     private ChessBoard board;
     private ChessPosition position;
+    private ChessGame.TeamColor color;
 
-    public BishopMovesCalculator(ChessBoard board, ChessPosition position) {
+    public BishopMovesCalculator(ChessBoard board, ChessPosition position, ChessGame.TeamColor color) {
         this.board = board;
         this.position = position;
+        this.color = color;
     }
 
     public Collection<ChessMove> bishopMoves() {
@@ -40,7 +42,11 @@ public class BishopMovesCalculator {
         while (curRow < 8 && curCol < 8) { // just less than 8 because if it is 8, there is nothign to check beyond
             ChessPosition end = new ChessPosition(curRow + 1,curCol + 1);
             if (board.hasPiece(end)) {
-                //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                ChessPiece endPiece = board.getPiece(end);
+                if (endPiece.getTeamColor() != this.color) {
+                    ChessMove newMove = new ChessMove(start,end);
+                    moves.add(newMove);
+                }
                 break;
             }
             ChessMove newMove = new ChessMove(start,end);
@@ -62,7 +68,11 @@ public class BishopMovesCalculator {
         while (curRow < 8 && curCol > 1) { // just less than 8 because if it is 8, there is nothign to check beyond
             ChessPosition end = new ChessPosition(curRow + 1,curCol - 1);
             if (board.hasPiece(end)) {
-                //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                ChessPiece endPiece = board.getPiece(end);
+                if (endPiece.getTeamColor() != this.color) {
+                    ChessMove newMove = new ChessMove(start,end);
+                    moves.add(newMove);
+                }
                 break;
             }
             ChessMove newMove = new ChessMove(start,end);
@@ -85,6 +95,11 @@ public class BishopMovesCalculator {
             ChessPosition end = new ChessPosition(curRow - 1,curCol - 1);
             if (board.hasPiece(end)) {
                 //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                ChessPiece endPiece = board.getPiece(end);
+                if (endPiece.getTeamColor() != this.color) {
+                    ChessMove newMove = new ChessMove(start,end);
+                    moves.add(newMove);
+                }
                 break;
             }
             ChessMove newMove = new ChessMove(start,end);
@@ -107,6 +122,11 @@ public class BishopMovesCalculator {
             ChessPosition end = new ChessPosition(curRow - 1,curCol + 1);
             if (board.hasPiece(end)) {
                 //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                ChessPiece endPiece = board.getPiece(end);
+                if (endPiece.getTeamColor() != this.color) {
+                    ChessMove newMove = new ChessMove(start,end);
+                    moves.add(newMove);
+                }
                 break;
             }
             ChessMove newMove = new ChessMove(start,end);

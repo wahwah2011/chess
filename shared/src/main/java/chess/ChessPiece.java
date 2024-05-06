@@ -81,16 +81,18 @@ public class ChessPiece {
 
         if(this.type == PieceType.BISHOP) {
             //System.out.println("Bishop Moves:\n");
-            BishopMovesCalculator calc = new BishopMovesCalculator(board,position);
+            BishopMovesCalculator calc = new BishopMovesCalculator(board,position,pieceColor);
             moves = calc.bishopMoves();
         }
         else if (this.type == PieceType.ROOK) {
             //System.out.println("Rook Moves:\n");
-            RookMovesCalculator calc = new RookMovesCalculator(board,position);
+            RookMovesCalculator calc = new RookMovesCalculator(board,position,pieceColor);
             moves = calc.rookMoves();
         }
         else if (this.type == PieceType.QUEEN) {
-
+            //System.out.println("Rook Moves:\n");
+            QueenMovesCalculator calc = new QueenMovesCalculator(board,position,pieceColor);
+            moves = calc.queenMoves();
         }
         else if (this.type == PieceType.KING) {
 

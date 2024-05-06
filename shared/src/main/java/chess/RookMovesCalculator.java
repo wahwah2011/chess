@@ -7,10 +7,12 @@ public class RookMovesCalculator {
 
     private ChessBoard board;
     private ChessPosition position;
+    private ChessGame.TeamColor color;
 
-    public RookMovesCalculator(ChessBoard board, ChessPosition position) {
+    public RookMovesCalculator(ChessBoard board, ChessPosition position, ChessGame.TeamColor color) {
         this.board = board;
         this.position = position;
+        this.color = color;
     }
 
     public Collection<ChessMove> rookMoves() {
@@ -38,6 +40,11 @@ public class RookMovesCalculator {
             ChessPosition upEnd = new ChessPosition(upRow + 1,curCol);
             if (board.hasPiece(upEnd)) {
                 //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                ChessPiece endPiece = board.getPiece(upEnd);
+                if (endPiece.getTeamColor() != this.color) {
+                    ChessMove newMove = new ChessMove(start,upEnd);
+                    moves.add(newMove);
+                }
                 break;
             }
             ChessMove newMove = new ChessMove(start,upEnd);
@@ -49,6 +56,11 @@ public class RookMovesCalculator {
             ChessPosition downEnd = new ChessPosition(downRow - 1, curCol);
             if (board.hasPiece(downEnd)) {
                 //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                ChessPiece endPiece = board.getPiece(downEnd);
+                if (endPiece.getTeamColor() != this.color) {
+                    ChessMove newMove = new ChessMove(start,downEnd);
+                    moves.add(newMove);
+                }
                 break;
             }
             ChessMove newMove = new ChessMove(start,downEnd);
@@ -68,23 +80,33 @@ public class RookMovesCalculator {
         int rightCol = position.getColumn();
 
         while (rightCol < 8) { // just less than 8 because if it is 8, there is nothign to check beyond
-            ChessPosition upEnd = new ChessPosition(curRow,rightCol + 1);
-            if (board.hasPiece(upEnd)) {
+            ChessPosition rightEnd = new ChessPosition(curRow,rightCol + 1);
+            if (board.hasPiece(rightEnd)) {
                 //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                ChessPiece endPiece = board.getPiece(rightEnd);
+                if (endPiece.getTeamColor() != this.color) {
+                    ChessMove newMove = new ChessMove(start,rightEnd);
+                    moves.add(newMove);
+                }
                 break;
             }
-            ChessMove newMove = new ChessMove(start,upEnd);
+            ChessMove newMove = new ChessMove(start,rightEnd);
             moves.add(newMove);
             rightCol++;
         }
 
         while (leftCol > 1) { // just less than 8 because if it is 8, there is nothign to check beyond
-            ChessPosition downEnd = new ChessPosition(curRow, leftCol - 1);
-            if (board.hasPiece(downEnd)) {
+            ChessPosition leftEnd = new ChessPosition(curRow, leftCol - 1);
+            if (board.hasPiece(leftEnd)) {
                 //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                ChessPiece endPiece = board.getPiece(leftEnd);
+                if (endPiece.getTeamColor() != this.color) {
+                    ChessMove newMove = new ChessMove(start,leftEnd);
+                    moves.add(newMove);
+                }
                 break;
             }
-            ChessMove newMove = new ChessMove(start,downEnd);
+            ChessMove newMove = new ChessMove(start,leftEnd);
             moves.add(newMove);
             leftCol--;
         }
