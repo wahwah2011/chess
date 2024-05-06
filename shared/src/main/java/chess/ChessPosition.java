@@ -29,4 +29,9 @@ public class ChessPosition {
     public int getColumn() {
         return col;
     }
+
+    public static boolean isValidPosition(int x, int y) {
+        return x >= 0 && x < 8 && y >= 0 && y < 8;
+    }
+
 }

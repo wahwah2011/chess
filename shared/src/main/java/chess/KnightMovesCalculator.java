@@ -2,12 +2,11 @@ package chess;
 
 import java.util.Collection;
 
-public class KingMovesCalculator {
-
+public class KnightMovesCalculator {
     private ChessBoard board;
     private ChessPosition position;
 
-    public KingMovesCalculator(ChessBoard board,ChessPosition position) {
+    public KnightMovesCalculator(ChessBoard board,ChessPosition position) {
         this.board = board;
         this.position = position;
     }
