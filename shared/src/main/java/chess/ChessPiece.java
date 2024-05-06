@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -14,9 +15,30 @@ public class ChessPiece {
     private ChessGame.TeamColor pieceColor;
     private ChessPiece.PieceType type;
 
-    public ChessPiece(ChessGame.TeamColor pC, ChessPiece.PieceType t) {
-        pieceColor = pC;
-        type = t;
+    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.pieceColor = pieceColor;
+        this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "pieceColor=" + pieceColor +
+                ", type=" + type +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
     }
 
     /**
@@ -54,13 +76,33 @@ public class ChessPiece {
      *
      *
      */
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        ChessPiece newPiece = new ChessPiece(this.pieceColor,this.type);
-        PieceMovesCalculator calculator = new PieceMovesCalculator(newPiece);
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
+        Collection<ChessMove> moves = new ArrayList<ChessMove>();
 
-        Collection<ChessMove> chessMoves = calculator.pieceMoves(board,myPosition);
+        if(this.type == PieceType.BISHOP) {
+            //System.out.println("Bishop Moves:\n");
+            BishopMovesCalculator calc = new BishopMovesCalculator(board,position);
+            moves = calc.bishopMoves();
+        }
+        else if (this.type == PieceType.ROOK) {
+            //System.out.println("Rook Moves:\n");
+            RookMovesCalculator calc = new RookMovesCalculator(board,position);
+            moves = calc.rookMoves();
+        }
+        else if (this.type == PieceType.QUEEN) {
 
-        return chessMoves;
+        }
+        else if (this.type == PieceType.KING) {
+
+        }
+        else if (this.type == PieceType.KNIGHT) {
+
+        }
+        else if (this.type == PieceType.PAWN) {
+
+        }
+
+        return moves;
     }
 
     public void setPieceType(PieceType p) {

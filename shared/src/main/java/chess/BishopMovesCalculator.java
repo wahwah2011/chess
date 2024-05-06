@@ -14,27 +14,108 @@ public class BishopMovesCalculator {
         this.position = position;
     }
 
-    public Collection<ChessMove> pieceMoves() {
-        List<ChessMove> moves = new ArrayList<>();
+    public Collection<ChessMove> bishopMoves() {
+        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+        moves.addAll(moveDiagonal());
+        return moves;
+    }
 
-        // Check diagonally in four directions
-        int[][] directions = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-        for (int[] direction : directions) {
-            int dx = direction[0];
-            int dy = direction[1];
-            int x = position.getRow() + dx;
-            int y = position.getColumn() + dy;
-            while (ChessPosition.isValidPosition(x, y) && !board.hasPiece(new ChessPosition(x, y))) {
-                moves.add(new ChessMove(position, new ChessPosition(x, y), null));
-                x += dx;
-                y += dy;
+    public ArrayList<ChessMove> moveDiagonal() {
+        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+
+        moves.addAll(upRight());
+        moves.addAll(upLeft());
+        moves.addAll(downLeft());
+        moves.addAll(downRight());
+
+        return moves;
+    }
+
+    public ArrayList<ChessMove> upRight() {
+        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+        ChessPosition start = new ChessPosition(position.getRow(),position.getColumn());
+        int curRow = position.getRow();
+        int curCol = position.getColumn();
+
+        while (curRow < 8 && curCol < 8) { // just less than 8 because if it is 8, there is nothign to check beyond
+            ChessPosition end = new ChessPosition(curRow + 1,curCol + 1);
+            if (board.hasPiece(end)) {
+                //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                break;
             }
-            // Check if the diagonal movement ends with a capture
-            if (ChessPosition.isValidPosition(x, y) && board.getPiece(new ChessPosition(x, y)).getTeamColor() != board.getPiece(position).getTeamColor()) {
-                moves.add(new ChessMove(position, new ChessPosition(x, y), null));
-            }
+            ChessMove newMove = new ChessMove(start,end);
+            moves.add(newMove);
+            curRow++;
+            curCol++;
         }
 
+        System.out.print(moves);
+        return moves;
+    }
+
+    public ArrayList<ChessMove> upLeft() {
+        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+        ChessPosition start = new ChessPosition(position.getRow(),position.getColumn());
+        int curRow = position.getRow();
+        int curCol = position.getColumn();
+
+        while (curRow < 8 && curCol > 1) { // just less than 8 because if it is 8, there is nothign to check beyond
+            ChessPosition end = new ChessPosition(curRow + 1,curCol - 1);
+            if (board.hasPiece(end)) {
+                //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                break;
+            }
+            ChessMove newMove = new ChessMove(start,end);
+            moves.add(newMove);
+            curRow++;
+            curCol--;
+        }
+
+        System.out.print(moves);
+        return moves;
+    }
+
+    public ArrayList<ChessMove> downLeft() {
+        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+        ChessPosition start = new ChessPosition(position.getRow(),position.getColumn());
+        int curRow = position.getRow();
+        int curCol = position.getColumn();
+
+        while (curRow > 1 && curCol > 1) { // just greater than 1 because if it is 1, there is nothign to check beyond
+            ChessPosition end = new ChessPosition(curRow - 1,curCol - 1);
+            if (board.hasPiece(end)) {
+                //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                break;
+            }
+            ChessMove newMove = new ChessMove(start,end);
+            moves.add(newMove);
+            curRow--;
+            curCol--;
+        }
+
+        System.out.print(moves);
+        return moves;
+    }
+
+    public ArrayList<ChessMove> downRight() {
+        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+        ChessPosition start = new ChessPosition(position.getRow(),position.getColumn());
+        int curRow = position.getRow();
+        int curCol = position.getColumn();
+
+        while (curRow > 1 && curCol < 8) { // just greater than 1 because if it is 1, there is nothign to check beyond
+            ChessPosition end = new ChessPosition(curRow - 1,curCol + 1);
+            if (board.hasPiece(end)) {
+                //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                break;
+            }
+            ChessMove newMove = new ChessMove(start,end);
+            moves.add(newMove);
+            curRow--;
+            curCol++;
+        }
+
+        System.out.print(moves);
         return moves;
     }
 }
