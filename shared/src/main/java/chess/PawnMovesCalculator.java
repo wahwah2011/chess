@@ -5,7 +5,7 @@ import java.util.Collection;
 
 public class PawnMovesCalculator extends PieceMovesCalculator {
 
-    private ChessGame.TeamColor color;
+    private final ChessGame.TeamColor color;
 
     public PawnMovesCalculator(ChessBoard board, ChessPosition position, ChessGame.TeamColor color) {
         super(board, position, color);

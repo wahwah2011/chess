@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class PieceMovesCalculator {
 
@@ -12,6 +13,28 @@ public class PieceMovesCalculator {
         this.board = board;
         this.position = position;
         this.color = color;
+    }
+
+    @Override
+    public String toString() {
+        return "PieceMovesCalculator{" +
+                "board=" + board +
+                ", position=" + position +
+                ", color=" + color +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PieceMovesCalculator that = (PieceMovesCalculator) o;
+        return Objects.equals(board, that.board) && Objects.equals(position, that.position) && color == that.color;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(board, position, color);
     }
 
     public ArrayList<ChessMove> moveDiagonal() {

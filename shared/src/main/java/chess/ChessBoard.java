@@ -11,11 +11,10 @@ import java.util.Objects;
  */
 public class ChessBoard {
 
-    private ChessPiece[][] squares = new ChessPiece[8][8];
+    private ChessPiece[][] squares;
 
     public ChessBoard() {
-        ChessPiece[][] newBoard = new ChessPiece[8][8];
-        squares = newBoard;
+        squares = new ChessPiece[8][8];
     }
 
     @Override
