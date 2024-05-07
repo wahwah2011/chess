@@ -371,4 +371,149 @@ public class PieceMovesCalculator {
         return moves;
     }
 
+    public ArrayList<ChessMove> nMoves() {
+        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+        ChessPosition start = new ChessPosition(position.getRow(),position.getColumn());
+        int curRow = position.getRow();
+        int curCol = position.getColumn();
+
+        //case 1: top row left
+        if (curRow < 7 && curCol > 1) {
+            ChessPosition end = new ChessPosition(curRow + 2,curCol - 1);
+            if (board.hasPiece(end)) {
+                //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                ChessPiece endPiece = board.getPiece(end);
+                if (endPiece.getTeamColor() != this.color) {
+                    ChessMove newMove = new ChessMove(start,end);
+                    moves.add(newMove);
+                }
+            }
+            else {
+                ChessMove newMove = new ChessMove(start,end);
+                moves.add(newMove);
+            }
+        }
+
+        //case 2: top row right
+        if (curRow < 7 && curCol < 8) {
+            ChessPosition end = new ChessPosition(curRow + 2,curCol + 1);
+            if (board.hasPiece(end)) {
+                //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                ChessPiece endPiece = board.getPiece(end);
+                if (endPiece.getTeamColor() != this.color) {
+                    ChessMove newMove = new ChessMove(start,end);
+                    moves.add(newMove);
+                }
+            }
+            else {
+                ChessMove newMove = new ChessMove(start,end);
+                moves.add(newMove);
+            }
+        }
+
+        //case 3: middle top row left
+        if (curRow < 8 && curCol > 2) {
+            ChessPosition end = new ChessPosition(curRow + 1,curCol - 2);
+            if (board.hasPiece(end)) {
+                //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                ChessPiece endPiece = board.getPiece(end);
+                if (endPiece.getTeamColor() != this.color) {
+                    ChessMove newMove = new ChessMove(start,end);
+                    moves.add(newMove);
+                }
+            }
+            else {
+                ChessMove newMove = new ChessMove(start,end);
+                moves.add(newMove);
+            }
+        }
+
+        //case 4: middle top row right
+        if (curRow < 8 && curCol < 7) {
+            ChessPosition end = new ChessPosition(curRow + 1,curCol + 2);
+            if (board.hasPiece(end)) {
+                //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                ChessPiece endPiece = board.getPiece(end);
+                if (endPiece.getTeamColor() != this.color) {
+                    ChessMove newMove = new ChessMove(start,end);
+                    moves.add(newMove);
+                }
+            }
+            else {
+                ChessMove newMove = new ChessMove(start,end);
+                moves.add(newMove);
+            }
+        }
+
+        //case 5: bottom row left
+        if (curRow > 2 && curCol > 1) {
+            ChessPosition end = new ChessPosition(curRow - 2,curCol - 1);
+            if (board.hasPiece(end)) {
+                //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                ChessPiece endPiece = board.getPiece(end);
+                if (endPiece.getTeamColor() != this.color) {
+                    ChessMove newMove = new ChessMove(start,end);
+                    moves.add(newMove);
+                }
+            }
+            else {
+                ChessMove newMove = new ChessMove(start,end);
+                moves.add(newMove);
+            }
+        }
+
+        //case 6: bottom row right
+        if (curRow > 2 && curCol < 8) {
+            ChessPosition end = new ChessPosition(curRow - 2,curCol + 1);
+            if (board.hasPiece(end)) {
+                //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                ChessPiece endPiece = board.getPiece(end);
+                if (endPiece.getTeamColor() != this.color) {
+                    ChessMove newMove = new ChessMove(start,end);
+                    moves.add(newMove);
+                }
+            }
+            else {
+                ChessMove newMove = new ChessMove(start,end);
+                moves.add(newMove);
+            }
+        }
+
+        //case 7: middle bot row left
+        if (curRow > 1 && curCol > 2) {
+            ChessPosition end = new ChessPosition(curRow - 1,curCol - 2);
+            if (board.hasPiece(end)) {
+                //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                ChessPiece endPiece = board.getPiece(end);
+                if (endPiece.getTeamColor() != this.color) {
+                    ChessMove newMove = new ChessMove(start,end);
+                    moves.add(newMove);
+                }
+            }
+            else {
+                ChessMove newMove = new ChessMove(start,end);
+                moves.add(newMove);
+            }
+        }
+
+        //case 8: middle bot row right
+        if (curRow > 1 && curCol < 7) {
+            ChessPosition end = new ChessPosition(curRow - 1,curCol + 2);
+            if (board.hasPiece(end)) {
+                //IF OTHER COLOR, THEN CAN ADVANCE TO THAT SPACE//CAPTURE THE ENEMY
+                ChessPiece endPiece = board.getPiece(end);
+                if (endPiece.getTeamColor() != this.color) {
+                    ChessMove newMove = new ChessMove(start,end);
+                    moves.add(newMove);
+                }
+            }
+            else {
+                ChessMove newMove = new ChessMove(start,end);
+                moves.add(newMove);
+            }
+        }
+
+        return moves;
+    }
+
 }

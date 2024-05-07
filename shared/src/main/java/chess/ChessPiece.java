@@ -95,12 +95,14 @@ public class ChessPiece {
             moves = calc.queenMoves();
         }
         else if (this.type == PieceType.KING) {
-            //System.out.println("Queen Moves:\n");
+            //System.out.println("King Moves:\n");
             KingMovesCalculator calc = new KingMovesCalculator(board,position,pieceColor);
             moves = calc.kingMoves();
         }
         else if (this.type == PieceType.KNIGHT) {
-
+            //System.out.println("Knight Moves:\n");
+            KnightMovesCalculator calc = new KnightMovesCalculator(board,position,pieceColor);
+            moves = calc.knightMoves();
         }
         else if (this.type == PieceType.PAWN) {
 

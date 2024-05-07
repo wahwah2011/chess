@@ -1,18 +1,17 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
-public class KnightMovesCalculator {
-    private ChessBoard board;
-    private ChessPosition position;
+public class KnightMovesCalculator extends PieceMovesCalculator {
 
-    public KnightMovesCalculator(ChessBoard board,ChessPosition position) {
-        this.board = board;
-        this.position = position;
+    public KnightMovesCalculator(ChessBoard board, ChessPosition position, ChessGame.TeamColor color) {
+        super(board, position, color);
     }
 
-    public Collection<ChessMove> pieceMoves() {
-        //implement using private class variables
-        throw new RuntimeException("Not implemented");
+    public Collection<ChessMove> knightMoves() {
+        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+        moves.addAll(nMoves());
+        return moves;
     }
 }
