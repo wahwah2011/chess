@@ -1,18 +1,26 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
-public class PawnMovesCalculator {
-    private ChessBoard board;
-    private ChessPosition position;
+public class PawnMovesCalculator extends PieceMovesCalculator {
 
-    public PawnMovesCalculator(ChessBoard board,ChessPosition position) {
-        this.board = board;
-        this.position = position;
+    private ChessGame.TeamColor color;
+
+    public PawnMovesCalculator(ChessBoard board, ChessPosition position, ChessGame.TeamColor color) {
+        super(board, position, color);
+        this.color = color;
     }
 
-    public Collection<ChessMove> pieceMoves() {
-        //implement using private class variables
-        throw new RuntimeException("Not implemented");
+    public Collection<ChessMove> pawnMoves() {
+        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+        if (color == ChessGame.TeamColor.WHITE) {
+            moves.addAll(whitePMoves());
+        }
+        else if (color == ChessGame.TeamColor.BLACK) {
+            moves.addAll(blackPMoves());
+        }
+
+        return moves;
     }
 }

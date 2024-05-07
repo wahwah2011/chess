@@ -105,7 +105,9 @@ public class ChessPiece {
             moves = calc.knightMoves();
         }
         else if (this.type == PieceType.PAWN) {
-
+            //System.out.println("Pawn Moves:\n");
+            PawnMovesCalculator calc = new PawnMovesCalculator(board,position,pieceColor);
+            moves = calc.pawnMoves();
         }
 
         return moves;
