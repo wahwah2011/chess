@@ -90,12 +90,14 @@ public class ChessPiece {
             moves = calc.rookMoves();
         }
         else if (this.type == PieceType.QUEEN) {
-            //System.out.println("Rook Moves:\n");
+            //System.out.println("Queen Moves:\n");
             QueenMovesCalculator calc = new QueenMovesCalculator(board,position,pieceColor);
             moves = calc.queenMoves();
         }
         else if (this.type == PieceType.KING) {
-
+            //System.out.println("Queen Moves:\n");
+            KingMovesCalculator calc = new KingMovesCalculator(board,position,pieceColor);
+            moves = calc.kingMoves();
         }
         else if (this.type == PieceType.KNIGHT) {
 
