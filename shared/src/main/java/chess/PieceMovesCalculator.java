@@ -15,28 +15,6 @@ public class PieceMovesCalculator {
         this.color = color;
     }
 
-    @Override
-    public String toString() {
-        return "PieceMovesCalculator{" +
-                "board=" + board +
-                ", position=" + position +
-                ", color=" + color +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PieceMovesCalculator that = (PieceMovesCalculator) o;
-        return Objects.equals(board, that.board) && Objects.equals(position, that.position) && color == that.color;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(board, position, color);
-    }
-
     public ArrayList<ChessMove> moveDiagonal() {
         ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
 
@@ -61,7 +39,7 @@ public class PieceMovesCalculator {
         int curRow = position.getRow();
         int curCol = position.getColumn();
 
-        while (curRow < 8 && curCol < 8) { // just less than 8 because if it is 8, there is nothign to check beyond
+        while (curRow < 8 && curCol < 8) { // just less than 8 because if it is 8, there is nohting to check beyond
             ChessPosition end = new ChessPosition(curRow + 1,curCol + 1);
             if (board.hasPiece(end)) {
                 ChessPiece endPiece = board.getPiece(end);
@@ -573,10 +551,6 @@ public class PieceMovesCalculator {
                     moves.add(new ChessMove(start, rightAttack, ChessPiece.PieceType.KNIGHT));
                 }
             }
-            /*validMoves.add(new ChessMove(startingPosition, end, ChessPiece.PieceType.QUEEN));
-            validMoves.add(new ChessMove(startingPosition, end, ChessPiece.PieceType.BISHOP));
-            validMoves.add(new ChessMove(startingPosition, end, ChessPiece.PieceType.ROOK));
-            validMoves.add(new ChessMove(startingPosition, end, ChessPiece.PieceType.KNIGHT));*/
         }
         else if (curRow == 2) {
             if (!board.hasPiece(defaultEnd)) {
@@ -684,4 +658,27 @@ public class PieceMovesCalculator {
 
         return moves;
     }
+
+    @Override
+    public String toString() {
+        return "PieceMovesCalculator{" +
+                "board=" + board +
+                ", position=" + position +
+                ", color=" + color +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PieceMovesCalculator that = (PieceMovesCalculator) o;
+        return Objects.equals(board, that.board) && Objects.equals(position, that.position) && color == that.color;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(board, position, color);
+    }
+
 }

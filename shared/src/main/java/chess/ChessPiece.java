@@ -116,4 +116,13 @@ public class ChessPiece {
     public void setPieceType(PieceType p) {
         type = p;
     }
+
+    @Override
+    public ChessPiece clone() {
+        try {
+            return (ChessPiece) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

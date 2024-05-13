@@ -114,4 +114,23 @@ public class ChessBoard {
         }
         return hasPiece;
     }
+
+    @Override
+    public ChessBoard clone() {
+        ChessBoard clonedBoard;
+        try {
+            clonedBoard = (ChessBoard) super.clone();
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    ChessPiece pieceClone = squares[i][j].clone();
+                    clonedBoard.addPiece(new ChessPosition(i,j),pieceClone);
+                }
+            }
+            return clonedBoard;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
 }
