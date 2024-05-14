@@ -1,8 +1,6 @@
 package chess;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class BishopMovesCalculator extends PieceMovesCalculator {
 
@@ -10,9 +8,9 @@ public class BishopMovesCalculator extends PieceMovesCalculator {
         super(board, position, color);
     }
 
-    public Collection<ChessMove> bishopMoves() {
-        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
-        moves.addAll(moveDiagonal());
+    public ArrayList<ChessMove> bishopMoves() {
+        ArrayList<ChessMove> moves = new ArrayList<>();
+        moves.addAll(diagonal());
         return moves;
     }
 }

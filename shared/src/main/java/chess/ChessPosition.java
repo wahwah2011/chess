@@ -10,20 +10,28 @@ import java.util.Objects;
  */
 public class ChessPosition {
 
-    private final int row;
-    private final int col;
+    private int row;
+    private int col;
 
-    public ChessPosition(int r, int c) {
-        row = r;
-        col = c;
+    public ChessPosition(int row, int col) {
+        this.row = row;
+        this.col = col;
     }
 
-    @Override
-    public String toString() {
-        return "ChessPosition{" +
-                "row=" + row +
-                ", col=" + col +
-                '}';
+    /**
+     * @return which row this position is in
+     * 1 codes for the bottom row
+     */
+    public int getRow() {
+        return row;
+    }
+
+    /**
+     * @return which column this position is in
+     * 1 codes for the left row
+     */
+    public int getColumn() {
+        return col;
     }
 
     @Override
@@ -39,21 +47,11 @@ public class ChessPosition {
         return Objects.hash(row, col);
     }
 
-    /**
-     * @return which row this position is in
-     * 1 codes for the bottom row
-     */
-    public int getRow() { return row; }
-
-    /**
-     * @return which column this position is in
-     * 1 codes for the left row
-     */
-    public int getColumn() {
-        return col;
-    }
-
-    public static boolean isValidPosition(int x, int y) {
-        return x >= 0 && x < 8 && y >= 0 && y < 8;
+    @Override
+    public String toString() {
+        return "ChessPosition{" +
+                "" + row +
+                ", " + col +
+                '}';
     }
 }

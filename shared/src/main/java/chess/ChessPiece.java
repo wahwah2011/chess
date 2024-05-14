@@ -12,15 +12,13 @@ import java.util.Objects;
  */
 public class ChessPiece {
 
-    private final ChessGame.TeamColor pieceColor;
-    private final ChessPiece.PieceType type;
+    private ChessGame.TeamColor pieceColor;
+    private PieceType type;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
     }
-
-
 
     /**
      * The various different chess piece options
@@ -31,8 +29,9 @@ public class ChessPiece {
         BISHOP,
         KNIGHT,
         ROOK,
-        PAWN;
+        PAWN
     }
+
     /**
      * @return Which team this chess piece belongs to
      */
@@ -47,52 +46,43 @@ public class ChessPiece {
         return type;
     }
 
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
      * danger
      *
      * @return Collection of valid moves
-     *
-     *
      */
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
-        Collection<ChessMove> moves = new ArrayList<ChessMove>();
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        ArrayList<ChessMove> moves = new ArrayList<>();
 
-        if(this.type == PieceType.BISHOP) {
-            BishopMovesCalculator calc = new BishopMovesCalculator(board,position,pieceColor);
+        if (type == PieceType.BISHOP) {
+            BishopMovesCalculator calc = new BishopMovesCalculator(board,myPosition,pieceColor);
             moves = calc.bishopMoves();
         }
-        else if (this.type == PieceType.ROOK) {
-            RookMovesCalculator calc = new RookMovesCalculator(board,position,pieceColor);
+        else if (type == PieceType.ROOK) {
+            RookMovesCalculator calc = new RookMovesCalculator(board,myPosition,pieceColor);
             moves = calc.rookMoves();
         }
-        else if (this.type == PieceType.QUEEN) {
-            QueenMovesCalculator calc = new QueenMovesCalculator(board,position,pieceColor);
+        else if (type == PieceType.QUEEN) {
+            QueenMovesCalculator calc = new QueenMovesCalculator(board,myPosition,pieceColor);
             moves = calc.queenMoves();
         }
-        else if (this.type == PieceType.KING) {
-            KingMovesCalculator calc = new KingMovesCalculator(board,position,pieceColor);
+        else if (type == PieceType.KING) {
+            KingMovesCalculator calc = new KingMovesCalculator(board,myPosition,pieceColor);
             moves = calc.kingMoves();
         }
-        else if (this.type == PieceType.KNIGHT) {
-            KnightMovesCalculator calc = new KnightMovesCalculator(board,position,pieceColor);
+        else if (type == PieceType.KNIGHT) {
+            KnightMovesCalculator calc = new KnightMovesCalculator(board,myPosition,pieceColor);
             moves = calc.knightMoves();
         }
-        else if (this.type == PieceType.PAWN) {
-            PawnMovesCalculator calc = new PawnMovesCalculator(board,position,pieceColor);
+        else if (type == PieceType.PAWN) {
+            PawnMovesCalculator calc = new PawnMovesCalculator(board,myPosition,pieceColor);
             moves = calc.pawnMoves();
         }
 
         return moves;
-    }
-
-    @Override
-    public String toString() {
-        return "ChessPiece{" +
-                "pieceColor=" + pieceColor +
-                ", type=" + type +
-                '}';
     }
 
     @Override

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
-
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -12,27 +11,13 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessGame {
-
+    private ChessBoard gameBoard;
     private TeamColor teamTurn;
-    private ChessBoard gameBoard = new ChessBoard();
 
     public ChessGame() {
-        this.teamTurn = TeamColor.WHITE;
-        this.gameBoard.resetBoard();
-    }
-
-    public static void main(String[] args) {
-        ChessGame game = new ChessGame();
-        ChessBoard board = game.getBoard();
-        ChessBoard cloneBoard = board.clone();
-
-        cloneBoard.addPiece(new ChessPosition(3,5), new ChessPiece(TeamColor.BLACK, ChessPiece.PieceType.KNIGHT));
-
-        System.out.println("after change:\n");
-        System.out.println(board.toString());
-
-        System.out.println("clone board:\n");
-        cloneBoard.toString();
+    teamTurn = TeamColor.WHITE;
+    gameBoard = new ChessBoard();
+    gameBoard.resetBoard();
     }
 
     /**
@@ -52,12 +37,30 @@ public class ChessGame {
     }
 
     /**
+     * Sets this game's chessboard with a given board
+     *
+     * @param board the new board to use
+     */
+    public void setBoard(ChessBoard board) {
+        gameBoard = board.clone();
+    }
+
+    /**
+     * Gets the current chessboard
+     *
+     * @return the chessboard
+     */
+    public ChessBoard getBoard() {
+        return gameBoard;
+    }
+
+    /**
      * Enum identifying the 2 possible teams in a chess game
      */
     public enum TeamColor {
         WHITE,
         BLACK
-    }
+        }
 
     /**
      * Gets a valid moves for a piece at the given location
@@ -67,7 +70,7 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        return new ArrayList<>(gameBoard.getPiece(startPosition).pieceMoves(gameBoard, startPosition));
+        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -77,7 +80,32 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        ChessPiece startPiece = gameBoard.getPiece(move.getStartPosition());
+        ChessPosition endPos = move.getEndPosition();
+        boolean hasEnd = false;
+        ArrayList<ChessMove> possMoves = new ArrayList<>(startPiece.pieceMoves(gameBoard, move.getStartPosition()));
+        for (ChessMove m : possMoves) {
+            if (m.getEndPosition().equals(endPos)) {
+                hasEnd = true;
+            }
+        }
+        //if cannot move there
+        if (!hasEnd) {
+            throw new InvalidMoveException("The piece cannot move to the desired end position");
+        }
+
+        //elif leaves king in danger
+        //STILL NEED TO IMPLEMENT THIS CASE
+
+        //elif move.startposition.piece.getteam != teamTurn
+        else if (startPiece.getTeamColor() != teamTurn) {
+            throw new InvalidMoveException("It is not the appropriate team's turn");
+        }
+        //else
+        else {
+            gameBoard.addPiece(endPos,startPiece);
+            gameBoard.clearPosition(move.getStartPosition());
+        }
     }
 
     /**
@@ -108,41 +136,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        ArrayList<ChessMove> moves = new ArrayList<>();
-
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                ChessPosition currPos = new ChessPosition(i,j);
-                ChessPiece currPiece = gameBoard.getPiece(currPos);
-
-                if (currPiece.getTeamColor() == teamColor) {
-                    moves.addAll(currPiece.pieceMoves(gameBoard,currPos));
-                }
-            }
-        }
-
-        if (moves.size() > 0) {
-            return false;
-        }
-        else return true;
-    }
-
-    /**
-     * Sets this game's chessboard with a given board
-     *
-     * @param board the new board to use
-     */
-    public void setBoard(ChessBoard board) {
-        gameBoard = board;
-    }
-
-    /**
-     * Gets the current chessboard
-     *
-     * @return the chessboard
-     */
-    public ChessBoard getBoard() {
-        return gameBoard;
+        throw new RuntimeException("Not implemented");
     }
 
 
@@ -151,11 +145,11 @@ public class ChessGame {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChessGame chessGame = (ChessGame) o;
-        return teamTurn == chessGame.teamTurn && Objects.equals(gameBoard, chessGame.gameBoard);
+        return Objects.equals(gameBoard, chessGame.gameBoard) && teamTurn == chessGame.teamTurn;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(teamTurn, gameBoard);
+        return Objects.hash(gameBoard, teamTurn);
     }
 }
