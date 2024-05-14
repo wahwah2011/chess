@@ -12,34 +12,15 @@ import java.util.Objects;
  */
 public class ChessPiece {
 
-    private ChessGame.TeamColor pieceColor;
-    private ChessPiece.PieceType type;
+    private final ChessGame.TeamColor pieceColor;
+    private final ChessPiece.PieceType type;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
     }
 
-    @Override
-    public String toString() {
-        return "ChessPiece{" +
-                "pieceColor=" + pieceColor +
-                ", type=" + type +
-                '}';
-    }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ChessPiece that = (ChessPiece) o;
-        return pieceColor == that.pieceColor && type == that.type;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(pieceColor, type);
-    }
 
     /**
      * The various different chess piece options
@@ -50,9 +31,8 @@ public class ChessPiece {
         BISHOP,
         KNIGHT,
         ROOK,
-        PAWN
+        PAWN;
     }
-
     /**
      * @return Which team this chess piece belongs to
      */
@@ -80,32 +60,26 @@ public class ChessPiece {
         Collection<ChessMove> moves = new ArrayList<ChessMove>();
 
         if(this.type == PieceType.BISHOP) {
-            //System.out.println("Bishop Moves:\n");
             BishopMovesCalculator calc = new BishopMovesCalculator(board,position,pieceColor);
             moves = calc.bishopMoves();
         }
         else if (this.type == PieceType.ROOK) {
-            //System.out.println("Rook Moves:\n");
             RookMovesCalculator calc = new RookMovesCalculator(board,position,pieceColor);
             moves = calc.rookMoves();
         }
         else if (this.type == PieceType.QUEEN) {
-            //System.out.println("Queen Moves:\n");
             QueenMovesCalculator calc = new QueenMovesCalculator(board,position,pieceColor);
             moves = calc.queenMoves();
         }
         else if (this.type == PieceType.KING) {
-            //System.out.println("King Moves:\n");
             KingMovesCalculator calc = new KingMovesCalculator(board,position,pieceColor);
             moves = calc.kingMoves();
         }
         else if (this.type == PieceType.KNIGHT) {
-            //System.out.println("Knight Moves:\n");
             KnightMovesCalculator calc = new KnightMovesCalculator(board,position,pieceColor);
             moves = calc.knightMoves();
         }
         else if (this.type == PieceType.PAWN) {
-            //System.out.println("Pawn Moves:\n");
             PawnMovesCalculator calc = new PawnMovesCalculator(board,position,pieceColor);
             moves = calc.pawnMoves();
         }
@@ -113,16 +87,30 @@ public class ChessPiece {
         return moves;
     }
 
-    public void setPieceType(PieceType p) {
-        type = p;
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "pieceColor=" + pieceColor +
+                ", type=" + type +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
     }
 
     @Override
     public ChessPiece clone() {
-        try {
-            return (ChessPiece) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
+        ChessPiece clonePiece = new ChessPiece(this.pieceColor,this.type);
+        return clonePiece;
     }
 }

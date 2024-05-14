@@ -11,10 +11,9 @@ import java.util.Objects;
  */
 public class ChessBoard {
 
-    private ChessPiece[][] squares;
+    private final ChessPiece[][] squares = new ChessPiece[8][8];
 
     public ChessBoard() {
-        squares = new ChessPiece[8][8];
     }
 
     @Override
@@ -118,19 +117,16 @@ public class ChessBoard {
     @Override
     public ChessBoard clone() {
         ChessBoard clonedBoard;
-        try {
-            clonedBoard = (ChessBoard) super.clone();
-            for (int i = 0; i < 8; i++) {
-                for (int j = 0; j < 8; j++) {
+        clonedBoard = new ChessBoard();
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (squares[i][j] != null) { // Check if the square has a piece
                     ChessPiece pieceClone = squares[i][j].clone();
-                    clonedBoard.addPiece(new ChessPosition(i,j),pieceClone);
+                    clonedBoard.addPiece(new ChessPosition(i + 1, j + 1), pieceClone); // Adjust position indices
                 }
             }
-            return clonedBoard;
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
         }
-
+        return clonedBoard;
     }
 
 }

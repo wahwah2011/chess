@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
+
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -13,11 +14,25 @@ import java.util.Objects;
 public class ChessGame {
 
     private TeamColor teamTurn;
-    ChessBoard gameBoard = new ChessBoard();
+    private ChessBoard gameBoard = new ChessBoard();
 
     public ChessGame() {
         this.teamTurn = TeamColor.WHITE;
         this.gameBoard.resetBoard();
+    }
+
+    public static void main(String[] args) {
+        ChessGame game = new ChessGame();
+        ChessBoard board = game.getBoard();
+        ChessBoard cloneBoard = board.clone();
+
+        cloneBoard.addPiece(new ChessPosition(3,5), new ChessPiece(TeamColor.BLACK, ChessPiece.PieceType.KNIGHT));
+
+        System.out.println("after change:\n");
+        System.out.println(board.toString());
+
+        System.out.println("clone board:\n");
+        cloneBoard.toString();
     }
 
     /**
