@@ -100,6 +100,11 @@ public class ChessBoard {
         return hasPiece;
     }
 
+    public void movePiece(ChessPosition startPos, ChessPosition endPos, ChessPiece piece) {
+        addPiece(endPos,piece);
+        clearPosition(startPos);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -113,6 +118,7 @@ public class ChessBoard {
         return Arrays.deepHashCode(squares);
     }
 
+    @Override
     public ChessBoard clone() {
         ChessBoard clonedBoard;
         clonedBoard = new ChessBoard();

@@ -1,8 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -15,14 +13,15 @@ public class ChessGame {
     private TeamColor teamTurn;
 
     public ChessGame() {
-    teamTurn = TeamColor.WHITE;
     gameBoard = new ChessBoard();
     gameBoard.resetBoard();
+    teamTurn = TeamColor.WHITE;
     }
 
     public static void main(String[] args) {
         ChessGame game = new ChessGame();
         ChessGame cloneGame = game.clone();
+        cloneGame.getBoard().addPiece(new ChessPosition(5,5),new ChessPiece(TeamColor.BLACK, ChessPiece.PieceType.PAWN));
         /*ArrayList<ChessPosition> pos = new ArrayList<>(game.enemyPositions(TeamColor.WHITE));
         ArrayList<ChessMove> moves = new ArrayList<>(game.validMoves(new ChessPosition(2,1)));
         ArrayList<ChessMove> vMoves = new ArrayList<>(game.validMoves(new ChessPosition(1,1)));*/
@@ -78,22 +77,23 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        ChessPiece startPiece = gameBoard.getPiece(startPosition);
-        TeamColor color = startPiece.getTeamColor();
+        ChessPiece piece = gameBoard.getPiece(startPosition);
+        TeamColor color = piece.getTeamColor();
 
-        ArrayList<ChessMove> moves = new ArrayList<>(startPiece.pieceMoves(gameBoard, startPosition));
-        //trim moves according to in check
-        for (int i = moves.size() - 1; i > 0; i--) {
+        Set<ChessMove> moves = new HashSet<>(piece.pieceMoves(gameBoard, startPosition));
+
+        // Create an iterator to safely remove elements while iterating
+        Iterator<ChessMove> iterator = moves.iterator();
+        while (iterator.hasNext()) {
+            ChessMove m = iterator.next();
             //clone board, move piece, check if is in check
             ChessGame cloneGame = this.clone();
+
             try {
-                cloneGame.makeMove(moves.get(i));
+                cloneGame.makeMove(m);
             } catch (InvalidMoveException e) {
-                throw new RuntimeException(e);
-            }
-            //if in check, remove that move
-            if(cloneGame.isInCheck(color)) {
-                moves.remove(i);
+                //if in check, remove that move
+                iterator.remove(); // Remove the current element using the iterator
             }
         }
         return moves;
@@ -107,12 +107,17 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
 
-        ChessPiece startPiece = gameBoard.getPiece(move.getStartPosition());
+        ChessPiece piece = gameBoard.getPiece(move.getStartPosition());
+        TeamColor teamTurn = getTeamTurn();
+        if (teamTurn == null && piece != null) {
+            teamTurn = piece.getTeamColor();
+        }
+        ChessPosition startPos = move.getStartPosition();
         ChessPosition endPos = move.getEndPosition();
         boolean hasEnd = false;
 
-        if (startPiece != null) {
-            ArrayList<ChessMove> possMoves = new ArrayList<>(startPiece.pieceMoves(gameBoard, move.getStartPosition()));
+        if (piece != null) {
+            ArrayList<ChessMove> possMoves = new ArrayList<>(piece.pieceMoves(gameBoard, startPos));
             for (ChessMove m : possMoves) {
                 if (m.getEndPosition().equals(endPos)) {
                     hasEnd = true;
@@ -122,23 +127,27 @@ public class ChessGame {
             if (!hasEnd) {
                 throw new InvalidMoveException("The piece cannot move to the desired end position");
             }
-
             //elif move.startposition.piece.getteam != teamTurn
-            else if (startPiece.getTeamColor() != teamTurn) {
+            else if (piece.getTeamColor() != teamTurn) {
                 throw new InvalidMoveException("It is not the appropriate team's turn");
             }
             //else
             else {
                 ChessGame cloneGame = this.clone();
-                cloneGame.getBoard().addPiece(endPos,startPiece);
-                cloneGame.getBoard().clearPosition(move.getStartPosition());
+                cloneGame.getBoard().movePiece(startPos,endPos,piece);
                 //if cloneBoard's 'game' isn't in check, then do the code below. otherwise throw an exception.
-                if (cloneGame.isInCheck(startPiece.getTeamColor())) {
+                if (cloneGame.isInCheck(piece.getTeamColor())) {
                     throw new InvalidMoveException("This move will leave your King in check");
                 }
                 else {
-                    gameBoard.addPiece(endPos,startPiece);
-                    gameBoard.clearPosition(move.getStartPosition());
+                    gameBoard.movePiece(startPos,endPos,piece);
+                    if (teamTurn.equals(TeamColor.BLACK)) {
+                        setTeamTurn(TeamColor.WHITE);
+                    }
+                    else if (teamTurn.equals(TeamColor.WHITE)) {
+                        setTeamTurn(TeamColor.BLACK);
+                    }
+
                 }
             }
         }
@@ -152,8 +161,9 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        ArrayList<ChessMove> oppMoves = new ArrayList<>(enemyMoves(teamColor));
-        ChessPosition kingPos = findKing(teamColor);
+        BoardStats eStats = new BoardStats(this);
+        ArrayList<ChessMove> oppMoves = new ArrayList<>(eStats.enemyMoves(teamColor));
+        ChessPosition kingPos = eStats.findKing(teamColor);
         boolean isCheck = false;
 
         for (ChessMove move : oppMoves) {
@@ -185,62 +195,7 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         throw new RuntimeException("Not implemented");
-    }
-
-    //POTENTIALLY COULD IMPLEMENT A PIECEFINDER CLASS???
-    public ChessPosition findKing(TeamColor teamColor) {
-        ArrayList<ChessPosition> positions = new ArrayList<>(boardPositions());
-
-        for (int i = positions.size() - 1; i >= 0; i--) {
-            ChessPiece curPiece = gameBoard.getPiece(positions.get(i));
-            if (curPiece.getTeamColor().equals(teamColor) &&
-                    curPiece.getPieceType().equals(ChessPiece.PieceType.KING)) {
-                return positions.get(i);
-            }
-        }
-        //SHOULD NEVER!
-        return null;
-    }
-
-    //should work
-    public Collection<ChessMove> enemyMoves(TeamColor teamColor) {
-        ArrayList<ChessPosition> positions = new ArrayList<>(enemyPositions(teamColor));
-        ArrayList<ChessMove> oppMoves = new ArrayList<>();
-
-        //iterate through positions and find all possible moves for given gameboard
-        for (ChessPosition pos : positions) {
-            ChessPiece piece = gameBoard.getPiece(pos);
-            oppMoves.addAll(piece.pieceMoves(gameBoard,pos));
-        }
-
-        return oppMoves;
-    }
-
-    //works
-    public Collection<ChessPosition> enemyPositions(TeamColor teamColor) {
-        ArrayList<ChessPosition> positions = new ArrayList<>(boardPositions());
-
-        for (int i = positions.size() - 1; i >= 0; i--) {
-            if (gameBoard.getPiece(positions.get(i)).getTeamColor().equals(teamColor)) {
-                positions.remove(i);
-            }
-        }
-
-        return positions;
-    }
-
-    //tested; works--maybe implement in board class?
-    public Collection<ChessPosition> boardPositions() {
-        ArrayList<ChessPosition> positions = new ArrayList<>();
-        for (int i = 1; i < 9; i++) {
-            for (int j = 1; j < 9; j++) {
-                ChessPosition pos = new ChessPosition(i,j);
-                if (gameBoard.hasPiece(pos)) {
-                    positions.add(pos);
-                }
-            }
-        }
-        return positions;
+        //use friendlyMoves; if empty then true
     }
 
     @Override
@@ -256,6 +211,7 @@ public class ChessGame {
         return Objects.hash(gameBoard, teamTurn);
     }
 
+    //TESTED -- THIS WORKS!
     @Override
     public ChessGame clone() {
         ChessGame cloneGame = new ChessGame();
