@@ -27,6 +27,20 @@ public class BoardStats {
     }
 
     //should work
+    public Collection<ChessMove> staleMoves(ChessGame.TeamColor teamColor) {
+        ArrayList<ChessPosition> positions = new ArrayList<>(friendlyPositions(teamColor));
+        ArrayList<ChessMove> frdMoves = new ArrayList<>();
+        ChessBoard gameBoard = game.getBoard();
+
+        //iterate through positions and find all possible moves for given gameboard
+        for (ChessPosition pos : positions) {
+            frdMoves.addAll(game.validMoves(pos));
+        }
+
+        return frdMoves;
+    }
+
+    //should work
     public Collection<ChessMove> friendlyMoves(ChessGame.TeamColor teamColor) {
         ArrayList<ChessPosition> positions = new ArrayList<>(friendlyPositions(teamColor));
         ArrayList<ChessMove> frdMoves = new ArrayList<>();
@@ -34,6 +48,7 @@ public class BoardStats {
 
         //iterate through positions and find all possible moves for given gameboard
         for (ChessPosition pos : positions) {
+            game.validMoves(pos);
             ChessPiece piece = gameBoard.getPiece(pos);
             frdMoves.addAll(piece.pieceMoves(gameBoard,pos));
         }

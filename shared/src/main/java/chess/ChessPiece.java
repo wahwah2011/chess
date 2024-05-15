@@ -46,6 +46,10 @@ public class ChessPiece {
         return type;
     }
 
+    public void setPieceType(PieceType type) {
+        this.type = type;
+    }
+
 
     /**
      * Calculates all the positions a chess piece can move to

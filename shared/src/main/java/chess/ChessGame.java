@@ -90,7 +90,7 @@ public class ChessGame {
             ChessGame cloneGame = this.clone();
 
             try {
-                cloneGame.makeMove(m);
+                cloneGame.colorTurn(m, color);
             } catch (InvalidMoveException e) {
                 //if in check, remove that move
                 iterator.remove(); // Remove the current element using the iterator
@@ -140,6 +140,59 @@ public class ChessGame {
                     throw new InvalidMoveException("This move will leave your King in check");
                 }
                 else {
+                    if (move.getPromotionPiece() != null) {
+                        piece.setPieceType(move.getPromotionPiece());
+                    }
+                    gameBoard.movePiece(startPos,endPos,piece);
+                    if (teamTurn.equals(TeamColor.BLACK)) {
+                        setTeamTurn(TeamColor.WHITE);
+                    }
+                    else if (teamTurn.equals(TeamColor.WHITE)) {
+                        setTeamTurn(TeamColor.BLACK);
+                    }
+
+                }
+            }
+        }
+        else throw new InvalidMoveException("There is no piece at your selected start position");
+    }
+
+    public void colorTurn(ChessMove move, TeamColor teamColor) throws InvalidMoveException {
+
+        ChessPiece piece = gameBoard.getPiece(move.getStartPosition());
+        TeamColor teamTurn = teamColor;
+
+        ChessPosition startPos = move.getStartPosition();
+        ChessPosition endPos = move.getEndPosition();
+        boolean hasEnd = false;
+
+        if (piece != null) {
+            ArrayList<ChessMove> possMoves = new ArrayList<>(piece.pieceMoves(gameBoard, startPos));
+            for (ChessMove m : possMoves) {
+                if (m.getEndPosition().equals(endPos)) {
+                    hasEnd = true;
+                }
+            }
+            //if cannot move there
+            if (!hasEnd) {
+                throw new InvalidMoveException("The piece cannot move to the desired end position");
+            }
+            //elif move.startposition.piece.getteam != teamTurn
+            else if (piece.getTeamColor() != teamColor) {
+                throw new InvalidMoveException("It is not the appropriate team's turn");
+            }
+            //else
+            else {
+                ChessGame cloneGame = this.clone();
+                cloneGame.getBoard().movePiece(startPos,endPos,piece);
+                //if cloneBoard's 'game' isn't in check, then do the code below. otherwise throw an exception.
+                if (cloneGame.isInCheck(piece.getTeamColor())) {
+                    throw new InvalidMoveException("This move will leave your King in check");
+                }
+                else {
+                    if (move.getPromotionPiece() != null) {
+                        piece.setPieceType(move.getPromotionPiece());
+                    }
                     gameBoard.movePiece(startPos,endPos,piece);
                     if (teamTurn.equals(TeamColor.BLACK)) {
                         setTeamTurn(TeamColor.WHITE);
@@ -183,7 +236,15 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        boolean checkMate = false;
+        BoardStats friendlyStats = new BoardStats(this);
+        ArrayList<ChessMove> moves = new ArrayList<>(friendlyStats.staleMoves(teamColor));
+
+        //is in check, no valid moves
+        if (isInCheck(teamColor) && moves.isEmpty()) {
+            checkMate = true;
+        }
+        return checkMate;
     }
 
     /**
@@ -194,8 +255,19 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
         //use friendlyMoves; if empty then true
+        boolean stalemate = false;
+        BoardStats friendlyStats = new BoardStats(this);
+
+        ArrayList<ChessMove> moves = new ArrayList<>(friendlyStats.staleMoves(teamColor));
+
+        //you're not in check and there are not valid moves
+
+        if (moves.isEmpty() && !isInCheck(teamColor)) {
+            stalemate = true;
+        }
+
+        return stalemate;
     }
 
     @Override
