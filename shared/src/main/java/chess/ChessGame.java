@@ -22,9 +22,10 @@ public class ChessGame {
 
     public static void main(String[] args) {
         ChessGame game = new ChessGame();
-        ArrayList<ChessPosition> pos = new ArrayList<>(game.enemyPositions(TeamColor.WHITE));
-        ArrayList<ChessMove> moves = new ArrayList<>(game.enemyMoves(TeamColor.WHITE));
-        boolean isCheck = game.isInCheck(TeamColor.WHITE);
+        ChessGame cloneGame = game.clone();
+        /*ArrayList<ChessPosition> pos = new ArrayList<>(game.enemyPositions(TeamColor.WHITE));
+        ArrayList<ChessMove> moves = new ArrayList<>(game.validMoves(new ChessPosition(2,1)));
+        ArrayList<ChessMove> vMoves = new ArrayList<>(game.validMoves(new ChessPosition(1,1)));*/
     }
 
     /**
@@ -77,7 +78,25 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece startPiece = gameBoard.getPiece(startPosition);
+        TeamColor color = startPiece.getTeamColor();
+
+        ArrayList<ChessMove> moves = new ArrayList<>(startPiece.pieceMoves(gameBoard, startPosition));
+        //trim moves according to in check
+        for (int i = moves.size() - 1; i > 0; i--) {
+            //clone board, move piece, check if is in check
+            ChessGame cloneGame = this.clone();
+            try {
+                cloneGame.makeMove(moves.get(i));
+            } catch (InvalidMoveException e) {
+                throw new RuntimeException(e);
+            }
+            //if in check, remove that move
+            if(cloneGame.isInCheck(color)) {
+                moves.remove(i);
+            }
+        }
+        return moves;
     }
 
     /**
@@ -87,32 +106,43 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+
         ChessPiece startPiece = gameBoard.getPiece(move.getStartPosition());
         ChessPosition endPos = move.getEndPosition();
         boolean hasEnd = false;
-        ArrayList<ChessMove> possMoves = new ArrayList<>(startPiece.pieceMoves(gameBoard, move.getStartPosition()));
-        for (ChessMove m : possMoves) {
-            if (m.getEndPosition().equals(endPos)) {
-                hasEnd = true;
+
+        if (startPiece != null) {
+            ArrayList<ChessMove> possMoves = new ArrayList<>(startPiece.pieceMoves(gameBoard, move.getStartPosition()));
+            for (ChessMove m : possMoves) {
+                if (m.getEndPosition().equals(endPos)) {
+                    hasEnd = true;
+                }
+            }
+            //if cannot move there
+            if (!hasEnd) {
+                throw new InvalidMoveException("The piece cannot move to the desired end position");
+            }
+
+            //elif move.startposition.piece.getteam != teamTurn
+            else if (startPiece.getTeamColor() != teamTurn) {
+                throw new InvalidMoveException("It is not the appropriate team's turn");
+            }
+            //else
+            else {
+                ChessGame cloneGame = this.clone();
+                cloneGame.getBoard().addPiece(endPos,startPiece);
+                cloneGame.getBoard().clearPosition(move.getStartPosition());
+                //if cloneBoard's 'game' isn't in check, then do the code below. otherwise throw an exception.
+                if (cloneGame.isInCheck(startPiece.getTeamColor())) {
+                    throw new InvalidMoveException("This move will leave your King in check");
+                }
+                else {
+                    gameBoard.addPiece(endPos,startPiece);
+                    gameBoard.clearPosition(move.getStartPosition());
+                }
             }
         }
-        //if cannot move there
-        if (!hasEnd) {
-            throw new InvalidMoveException("The piece cannot move to the desired end position");
-        }
-
-        //elif leaves king in danger
-        //STILL NEED TO IMPLEMENT THIS CASE
-
-        //elif move.startposition.piece.getteam != teamTurn
-        else if (startPiece.getTeamColor() != teamTurn) {
-            throw new InvalidMoveException("It is not the appropriate team's turn");
-        }
-        //else
-        else {
-            gameBoard.addPiece(endPos,startPiece);
-            gameBoard.clearPosition(move.getStartPosition());
-        }
+        else throw new InvalidMoveException("There is no piece at your selected start position");
     }
 
     /**
@@ -224,5 +254,12 @@ public class ChessGame {
     @Override
     public int hashCode() {
         return Objects.hash(gameBoard, teamTurn);
+    }
+
+    @Override
+    public ChessGame clone() {
+        ChessGame cloneGame = new ChessGame();
+        cloneGame.setBoard(gameBoard.clone());
+        return cloneGame;
     }
 }
