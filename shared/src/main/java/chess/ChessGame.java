@@ -20,6 +20,13 @@ public class ChessGame {
     gameBoard.resetBoard();
     }
 
+    public static void main(String[] args) {
+        ChessGame game = new ChessGame();
+        ArrayList<ChessPosition> pos = new ArrayList<>(game.enemyPositions(TeamColor.WHITE));
+        ArrayList<ChessMove> moves = new ArrayList<>(game.enemyMoves(TeamColor.WHITE));
+        boolean isCheck = game.isInCheck(TeamColor.WHITE);
+    }
+
     /**
      * @return Which team's turn it is
      */
@@ -115,7 +122,18 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ArrayList<ChessMove> oppMoves = new ArrayList<>(enemyMoves(teamColor));
+        ChessPosition kingPos = findKing(teamColor);
+        boolean isCheck = false;
+
+        for (ChessMove move : oppMoves) {
+            ChessPosition endPos = move.getEndPosition();
+            if (endPos.equals(kingPos)) {
+                isCheck = true;
+            }
+        }
+
+        return isCheck;
     }
 
     /**
@@ -139,6 +157,61 @@ public class ChessGame {
         throw new RuntimeException("Not implemented");
     }
 
+    //POTENTIALLY COULD IMPLEMENT A PIECEFINDER CLASS???
+    public ChessPosition findKing(TeamColor teamColor) {
+        ArrayList<ChessPosition> positions = new ArrayList<>(boardPositions());
+
+        for (int i = positions.size() - 1; i >= 0; i--) {
+            ChessPiece curPiece = gameBoard.getPiece(positions.get(i));
+            if (curPiece.getTeamColor().equals(teamColor) &&
+                    curPiece.getPieceType().equals(ChessPiece.PieceType.KING)) {
+                return positions.get(i);
+            }
+        }
+        //SHOULD NEVER!
+        return null;
+    }
+
+    //should work
+    public Collection<ChessMove> enemyMoves(TeamColor teamColor) {
+        ArrayList<ChessPosition> positions = new ArrayList<>(enemyPositions(teamColor));
+        ArrayList<ChessMove> oppMoves = new ArrayList<>();
+
+        //iterate through positions and find all possible moves for given gameboard
+        for (ChessPosition pos : positions) {
+            ChessPiece piece = gameBoard.getPiece(pos);
+            oppMoves.addAll(piece.pieceMoves(gameBoard,pos));
+        }
+
+        return oppMoves;
+    }
+
+    //works
+    public Collection<ChessPosition> enemyPositions(TeamColor teamColor) {
+        ArrayList<ChessPosition> positions = new ArrayList<>(boardPositions());
+
+        for (int i = positions.size() - 1; i >= 0; i--) {
+            if (gameBoard.getPiece(positions.get(i)).getTeamColor().equals(teamColor)) {
+                positions.remove(i);
+            }
+        }
+
+        return positions;
+    }
+
+    //tested; works--maybe implement in board class?
+    public Collection<ChessPosition> boardPositions() {
+        ArrayList<ChessPosition> positions = new ArrayList<>();
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition pos = new ChessPosition(i,j);
+                if (gameBoard.hasPiece(pos)) {
+                    positions.add(pos);
+                }
+            }
+        }
+        return positions;
+    }
 
     @Override
     public boolean equals(Object o) {
