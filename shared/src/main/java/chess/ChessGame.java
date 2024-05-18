@@ -78,12 +78,11 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = gameBoard.getPiece(startPosition);
-        TeamColor color = piece.getTeamColor();
 
         ArrayList<ChessMove> moves = new ArrayList<>(piece.pieceMoves(gameBoard, startPosition));
 
         // Create an iterator to safely remove elements while iterating
-        for (int i = moves.size() - 1; i > 0; i--) {
+        for (int i = moves.size() - 1; i >= 0; i--) {
             ChessMove m = moves.get(i);
             ChessPosition startPos = m.getStartPosition();
             ChessPosition endPos = m.getEndPosition();
@@ -110,7 +109,6 @@ public class ChessGame {
         TeamColor teamTurn = getTeamTurn();
         ChessPosition startPos = move.getStartPosition();
         ChessPosition endPos = move.getEndPosition();
-        boolean hasEnd = false;
 
         if (piece != null) {
             ArrayList<ChessMove> possMoves = new ArrayList<>(validMoves(startPos));
@@ -139,56 +137,6 @@ public class ChessGame {
         else throw new InvalidMoveException("There is no piece at your selected start position");
     }
 
-    public void colorTurn(ChessMove move, TeamColor teamColor) throws InvalidMoveException {
-
-        ChessPiece piece = gameBoard.getPiece(move.getStartPosition());
-        TeamColor teamTurn = teamColor;
-
-        ChessPosition startPos = move.getStartPosition();
-        ChessPosition endPos = move.getEndPosition();
-        boolean hasEnd = false;
-
-        if (piece != null) {
-            ArrayList<ChessMove> possMoves = new ArrayList<>(piece.pieceMoves(gameBoard, startPos));
-            for (ChessMove m : possMoves) {
-                if (m.getEndPosition().equals(endPos)) {
-                    hasEnd = true;
-                }
-            }
-            //if cannot move there
-            if (!hasEnd) {
-                throw new InvalidMoveException("The piece cannot move to the desired end position");
-            }
-            //elif move.startposition.piece.getteam != teamTurn
-            else if (piece.getTeamColor() != teamColor) {
-                throw new InvalidMoveException("It is not the appropriate team's turn");
-            }
-            //else
-            else {
-                ChessGame cloneGame = this.clone();
-                cloneGame.getBoard().movePiece(startPos,endPos,piece);
-                //if cloneBoard's 'game' isn't in check, then do the code below. otherwise throw an exception.
-                if (cloneGame.isInCheck(piece.getTeamColor())) {
-                    throw new InvalidMoveException("This move will leave your King in check");
-                }
-                else {
-                    if (move.getPromotionPiece() != null) {
-                        piece.setPieceType(move.getPromotionPiece());
-                    }
-                    gameBoard.movePiece(startPos,endPos,piece);
-                    if (teamTurn.equals(TeamColor.BLACK)) {
-                        setTeamTurn(TeamColor.WHITE);
-                    }
-                    else if (teamTurn.equals(TeamColor.WHITE)) {
-                        setTeamTurn(TeamColor.BLACK);
-                    }
-
-                }
-            }
-        }
-        else throw new InvalidMoveException("There is no piece at your selected start position");
-    }
-
     /**
      * Determines if the given team is in check
      *
@@ -205,6 +153,7 @@ public class ChessGame {
             ChessPosition endPos = move.getEndPosition();
             if (endPos.equals(kingPos)) {
                 isCheck = true;
+                break;
             }
         }
 
@@ -243,7 +192,7 @@ public class ChessGame {
 
         ArrayList<ChessMove> moves = new ArrayList<>(friendlyStats.staleMoves(teamColor));
 
-        //you're not in check and there are not valid moves
+        //you're not in check and there are no valid moves
 
         if (moves.isEmpty() && !isInCheck(teamColor)) {
             stalemate = true;
