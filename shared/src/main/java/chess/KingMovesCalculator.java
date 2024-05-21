@@ -8,7 +8,7 @@ public class KingMovesCalculator extends PieceMovesCalculator {
     }
 
     public ArrayList<ChessMove> kingMoves() {
-        ArrayList<ChessMove> moves = new ArrayList<>(kMoves());
+        ArrayList<ChessMove> moves = new ArrayList<>(kingMove());
         return moves;
     }
 }

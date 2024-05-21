@@ -222,7 +222,7 @@ public class PieceMovesCalculator {
         return moves;
     }
 
-    public ArrayList<ChessMove> kMoves() {
+    public ArrayList<ChessMove> kingMove() {
         ArrayList<ChessMove> moves = new ArrayList<>();
         int row = position.getRow();
         int col = position.getColumn();
@@ -335,7 +335,7 @@ public class PieceMovesCalculator {
         return moves;
     }
 
-    public ArrayList<ChessMove> nMoves() {
+    public ArrayList<ChessMove> knightMove() {
         ArrayList<ChessMove> moves = new ArrayList<>();
         int row = position.getRow();
         int col = position.getColumn();
