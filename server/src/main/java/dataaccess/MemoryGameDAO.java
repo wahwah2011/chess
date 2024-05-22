@@ -11,12 +11,13 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public void createGame(GameData gameData) throws DataAccessException {
-
+        games.add(gameData);
     }
 
     @Override
     public GameData getGame(GameData gameData) throws DataAccessException {
-        return null;
+        if (games.contains(gameData)) return gameData;
+        else return null;
     }
 
     @Override
