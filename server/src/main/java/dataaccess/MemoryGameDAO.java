@@ -1,10 +1,8 @@
 package dataaccess;
 
 import model.GameData;
+import model.GameList;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class MemoryGameDAO implements GameDAO {
@@ -22,10 +20,16 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public Collection<GameData> listGames() throws DataAccessException {
-        return List.of();
+    public GameList listGames() throws DataAccessException {
+        GameList gameList = new GameList(games);
+        return gameList;
     }
 
+/*
+    Updates a chess game. It should replace the chess game string corresponding to a given gameID.
+    This is used when players join a game or when a move is made.
+    Just replace the whole ChessGame object--you can make it a separate method if you want
+*/
     @Override
     public void updateGame(GameData gameData, String userName) throws DataAccessException {
 
