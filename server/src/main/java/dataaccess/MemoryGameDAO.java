@@ -5,9 +5,11 @@ import model.GameData;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class MemoryGameDAO implements GameDAO {
-    //give this a private data structure type that can store information
+    //give this a private data structure type that can store information?
+    private Set<GameData> games;
 
     @Override
     public void createGame(GameData gameData) throws DataAccessException {
@@ -31,6 +33,6 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public void clear() throws DataAccessException {
-
+        games.clear();
     }
 }
