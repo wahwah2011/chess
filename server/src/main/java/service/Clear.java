@@ -4,11 +4,11 @@ import dataaccess.*;
 import model.Response.ClearResponse;
 
 public class Clear {
-    private AuthDAO authDAO;
-    private UserDAO userDAO;
-    private GameDAO gameDAO;
+    private MemoryAuthDAO authDAO;
+    private MemoryUserDAO userDAO;
+    private MemoryGameDAO gameDAO;
 
-    public Clear(AuthDAO authDAO, UserDAO userDAO, GameDAO gameDAO) {
+    public Clear(MemoryAuthDAO authDAO, MemoryUserDAO userDAO, MemoryGameDAO gameDAO) {
         this.authDAO = authDAO;
         this.userDAO = userDAO;
         this.gameDAO = gameDAO;
@@ -36,7 +36,6 @@ public class Clear {
         }
 
         ClearResponse response = new ClearResponse();
-        response.setMessage("200");
 
         return response;
     }

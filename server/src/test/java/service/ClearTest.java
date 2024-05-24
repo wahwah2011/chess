@@ -16,12 +16,12 @@ class ClearTest {
 
     Clear clear;
 
-    AuthDAO authDAO;
-    UserDAO userDAO;
-    GameDAO gameDAO;
-    AuthDAO expectedAuth;
-    UserDAO expectedUser;
-    GameDAO expectedGame;
+    MemoryAuthDAO authDAO;
+    MemoryUserDAO userDAO;
+    MemoryGameDAO gameDAO;
+    MemoryAuthDAO expectedAuth;
+    MemoryUserDAO expectedUser;
+    MemoryGameDAO expectedGame;
 
     @BeforeEach
     void setUp() {

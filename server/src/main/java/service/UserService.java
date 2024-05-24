@@ -70,7 +70,7 @@ public class UserService {
     }
 
     public AuthData createAuth(UserData user) {
-        String userName = user.userName();
+        String userName = user.username();
         String authToken = UUID.randomUUID().toString();
         AuthData authorization = new AuthData(authToken,userName,null);
 

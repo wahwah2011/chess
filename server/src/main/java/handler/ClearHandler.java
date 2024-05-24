@@ -10,9 +10,9 @@ import spark.*;
 
 
 public class ClearHandler extends Server {
-    private UserDAO userData;
-    private GameDAO gameData;
-    private AuthDAO authData;
+    private MemoryUserDAO userData;
+    private MemoryGameDAO gameData;
+    private MemoryAuthDAO authData;
 
     public ClearHandler(MemoryUserDAO userData, MemoryGameDAO gameData, MemoryAuthDAO authData) {
         this.userData = userData;
