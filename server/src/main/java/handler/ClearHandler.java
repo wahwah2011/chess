@@ -9,7 +9,7 @@ import service.Clear;
 import spark.*;
 
 
-public class ClearHandler extends Server {
+public class ClearHandler implements Route {
     private MemoryUserDAO userData;
     private MemoryGameDAO gameData;
     private MemoryAuthDAO authData;
@@ -20,15 +20,12 @@ public class ClearHandler extends Server {
         this.authData = authData;
     }
 
-    //shouldn't take anything in
-    public Object clearRequest(Request req, Response res) {
+    @Override
+    public Object handle(Request request, Response response) throws Exception {
         Gson serializer = new Gson();
         Clear clear = new Clear(authData, userData, gameData);
         ClearResponse clearObj = clear.clearGame();
-        String json = serializer.toJson(clearObj);
-        return json;
+        response.status(200);
+        return serializer.toJson(clearObj);
     }
-
-
-
 }
