@@ -20,11 +20,17 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public UserData getUser(UserData userData) throws DataAccessException {
-        if (!users.contains(userData)) {
-            throw new DataAccessException("");
+    public UserData getUser(UserData user) throws DataAccessException {
+        boolean exists = false;
+        for (UserData u : users) {
+            if (u.username().equals(user.username()) && u.password().equals(user.password())) {
+                exists = true;
+            }
         }
-        else return userData;
+        if (exists) {
+            return user;
+        }
+        else throw new DataAccessException("userName doesn't exist");
     }
 
     @Override

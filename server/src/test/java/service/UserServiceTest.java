@@ -3,6 +3,7 @@ package service;
 import dataaccess.*;
 import model.AuthData;
 import model.UserData;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +27,6 @@ class UserServiceTest {
         userService = new UserService(userDAO, authDAO);
     }
 
-
     @Test
     void registerSuccess() {
         UserData user = new UserData("Henry", "12345", "henry@mail.com");
@@ -46,7 +46,27 @@ class UserServiceTest {
     }
 
     @Test
-    void login() {
+    void loginSuccess() {
+        UserData user = new UserData("Henry", "12345", "henry@mail.com");
+
+        AuthData regAuth = userService.register(user);
+        AuthData loginAuth = userService.login(user);
+
+        System.out.println("regAuth: " + regAuth.toString() + " \nloginAuth: " + loginAuth.toString());
+
+        assertNotEquals(loginAuth, regAuth);
+    }
+
+    @Test
+    void loginFail() {
+        UserData user = new UserData("Henry", "12345", "henry@mail.com");
+        AuthData loginAuth = userService.login(user);
+
+        System.out.println("loginAuth: " + loginAuth.toString());
+
+        String expectedMessage = "Error: unauthorized";
+        assertTrue(loginAuth.message() == expectedMessage);
+
     }
 
     @Test

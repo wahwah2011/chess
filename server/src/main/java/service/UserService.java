@@ -10,11 +10,12 @@ public class UserService {
     private UserDAO userDAO;
     private AuthDAO authDAO;
 
-    public UserService(MemoryUserDAO userDAO, MemoryAuthDAO authDAO) {
+    public UserService(UserDAO userDAO, AuthDAO authDAO) {
         this.userDAO = userDAO;
         this.authDAO = authDAO;
     }
 
+    //done
     public AuthData register(UserData user) {
         AuthData authorization = createAuth(user);
 
@@ -38,18 +39,20 @@ public class UserService {
         return authorization;
     }
 
+
     public AuthData login(UserData user) {
+        //user == username, password
         AuthData authorization = createAuth(user);
 
         try {
             userDAO.getUser(user);
         } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            authorization = new AuthData(null, null, "Error: unauthorized");
         }
         try {
             authDAO.createAuth(authorization);
         } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            authorization = new AuthData(null, null, "Error: unauthorized");
         }
 
         return authorization;

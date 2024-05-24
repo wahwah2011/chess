@@ -2,22 +2,21 @@ package handler;
 
 import com.google.gson.Gson;
 import dataaccess.*;
-import handler.json.ErrorResponse;
 import model.AuthData;
 import model.UserData;
-import org.eclipse.jetty.server.Authentication;
-import server.Server;
 import service.UserService;
-import spark.*;
+import spark.Request;
+import spark.Response;
+import spark.Route;
 
-public class RegisterHandler implements Route {
+public class LoginHandler implements Route {
 
     private UserDAO userDAO;
     private AuthDAO authDAO;
 
-    public RegisterHandler(UserDAO userData, AuthDAO authData) {
-        this.userDAO = userData;
-        this.authDAO = authData;
+    public LoginHandler(AuthDAO authDAO, UserDAO userDAO) {
+        this.authDAO = authDAO;
+        this.userDAO = userDAO;
     }
 
     @Override
@@ -30,20 +29,19 @@ public class RegisterHandler implements Route {
         // Deserialize the request body to UserData
         newUser = serializer.fromJson(request.body(), UserData.class);
 
-        //check for bad request (if one of the variables is null)
-        if (newUser.username() == null || newUser.password() == null || newUser.email() == null) {
+        //check if bad request
+        if (newUser.username() == null || newUser.password() == null) {
             response.status(400); // Internal Server Error
             result = new AuthData(null,null,"Error: bad request");
             return serializer.toJson(result);
         }
 
-        result = registerService.register(newUser);
-
+        result = registerService.login(newUser);
 
         if (result.message() != null) {
             String message = result.message();
-            if (message.equals("Error: already taken")) {
-                response.status(403); // Already taken
+            if (message.equals("Error: unauthorized")) {
+                response.status(401); // Already taken
             }
             else response.status(500);
         }
@@ -53,6 +51,6 @@ public class RegisterHandler implements Route {
 
         // Successful registration
         return serializer.toJson(result);
-    }
 
+    }
 }
