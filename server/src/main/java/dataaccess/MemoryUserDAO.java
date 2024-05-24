@@ -13,11 +13,8 @@ public class MemoryUserDAO implements UserDAO {
 
     @Override
     public void createUser(UserData userData) throws DataAccessException {
-        if (!users.isEmpty()) {
-            if (users.contains(userData)) {
-                throw new DataAccessException("Error: already taken");
-            }
-            else users.add(userData);
+        if (users.contains(userData)) {
+            throw new DataAccessException("Error: already taken");
         }
         else users.add(userData);
     }
@@ -25,7 +22,7 @@ public class MemoryUserDAO implements UserDAO {
     @Override
     public UserData getUser(UserData userData) throws DataAccessException {
         if (!users.contains(userData)) {
-            return null;
+            throw new DataAccessException("");
         }
         else return userData;
     }

@@ -12,12 +12,20 @@ public class MemoryAuthDAO implements AuthDAO {
 
     @Override
     public void createAuth(AuthData authData) throws DataAccessException {
-
+        if (auth.contains(authData)) {
+            throw new DataAccessException("Auth already exists");
+        }
+        else auth.add(authData);
     }
 
     @Override
-    public AuthData getAuth(String userName) throws DataAccessException {
-        return null;
+    public AuthData getAuth(AuthData authData) throws DataAccessException {
+        if(auth.contains(authData)) {
+            return authData;
+        }
+        else {
+            return null;
+        }
     }
 
     @Override

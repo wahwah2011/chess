@@ -1,5 +1,6 @@
 package server;
 
+import handler.ClearHandler;
 import spark.*;
 import dataaccess.*;
 
@@ -9,16 +10,19 @@ public class Server {
     private MemoryUserDAO userData;
     private MemoryGameDAO gameData;
     private MemoryAuthDAO authData;
+    private ClearHandler clearHandler;
 
     public int run(int desiredPort) {
+        clearHandler = new ClearHandler(userData, gameData, authData);
+
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
 
-        // Register your endpoints and handle exceptions here.
-        // pass whatever data
-
         Spark.init();
+        // Register your endpoints and handle exceptions here.
+        Spark.delete("/db", (request, response) -> clearHandler.clearRequest(request, response));
+
         Spark.awaitInitialization();
         return Spark.port();
     }

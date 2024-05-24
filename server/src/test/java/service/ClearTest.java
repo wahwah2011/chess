@@ -4,6 +4,7 @@ import chess.ChessGame;
 import dataaccess.*;
 import model.AuthData;
 import model.GameData;
+import model.Response.ClearResponse;
 import model.UserData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +41,7 @@ class ClearTest {
     @Test
     void testClearGame() {
         try {
-            authDAO.createAuth(new AuthData("hello","myMom"));
+            authDAO.createAuth(new AuthData("hello","myMom", null));
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
@@ -54,7 +55,9 @@ class ClearTest {
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-        clear.clearGame();
+        ClearResponse clearData = clear.clearGame();
+        System.out.println(clearData.toString());
+
         assertEquals(authDAO,expectedAuth);
         assertEquals(userDAO,expectedUser);
         assertEquals(gameDAO,expectedGame);

@@ -1,4 +1,5 @@
 package service;
+//recognizing what kind of error in here
 
 import dataaccess.*;
 import model.*;
@@ -9,7 +10,7 @@ public class UserService {
     private UserDAO userDAO;
     private AuthDAO authDAO;
 
-    public UserService(UserDAO userDAO, AuthDAO authDAO) {
+    public UserService(MemoryUserDAO userDAO, MemoryAuthDAO authDAO) {
         this.userDAO = userDAO;
         this.authDAO = authDAO;
     }
@@ -19,19 +20,19 @@ public class UserService {
 
         try {
             userDAO.getUser(user);
+            authorization = new AuthData(null,null,"Error: already taken");
         } catch (DataAccessException e) {
-            //should be null
-        }
-        try {
-            userDAO.createUser(user);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
-            authDAO.createAuth(authorization);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            //should be null, therefore execute other code when fails
+            try {
+                userDAO.createUser(user);
+            } catch (DataAccessException f) {
+                authorization = new AuthData(null,null,"Error: already taken");
+            }
+            try {
+                authDAO.createAuth(authorization);
+            } catch (DataAccessException g) {
+                authorization = new AuthData(null,null,"Error: bad request");
+            }
         }
 
         return authorization;
@@ -57,7 +58,7 @@ public class UserService {
     public void logout(UserData user) {
         AuthData authorization = createAuth(user);
         try {
-            authorization = authDAO.getAuth(user.userName());
+            authorization = authDAO.getAuth(authorization);
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
@@ -71,7 +72,7 @@ public class UserService {
     public AuthData createAuth(UserData user) {
         String userName = user.userName();
         String authToken = UUID.randomUUID().toString();
-        AuthData authorization = new AuthData(authToken,userName);
+        AuthData authorization = new AuthData(authToken,userName,null);
 
         return authorization;
     }

@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.*;
+import model.Response.ClearResponse;
 
 public class Clear {
     private AuthDAO authDAO;
@@ -13,7 +14,7 @@ public class Clear {
         this.gameDAO = gameDAO;
     }
 
-    void clearGame() {
+    public ClearResponse clearGame() {
         //access and clear each of the above data structures:
         //gameDAO
         try {
@@ -33,5 +34,10 @@ public class Clear {
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
+
+        ClearResponse response = new ClearResponse();
+        response.setMessage("200");
+
+        return response;
     }
 }
