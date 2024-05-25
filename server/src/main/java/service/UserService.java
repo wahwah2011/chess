@@ -3,6 +3,7 @@ package service;
 
 import dataaccess.*;
 import model.*;
+import model.Response.Response;
 
 import java.util.UUID;
 
@@ -39,7 +40,6 @@ public class UserService {
         return authorization;
     }
 
-
     public AuthData login(UserData user) {
         //user == username, password
         AuthData authorization = createAuth(user);
@@ -58,18 +58,19 @@ public class UserService {
         return authorization;
     }
 
-    public void logout(UserData user) {
-        AuthData authorization = createAuth(user);
+    public AuthData logout(AuthData auth) {
         try {
-            authorization = authDAO.getAuth(authorization);
+            authDAO.getAuth(auth);
+        } catch (DataAccessException e) {
+            return new AuthData(null,null, "Error: unauthorized");
+        }
+        try {
+            authDAO.deleteAuth(auth);
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-        try {
-            authDAO.deleteAuth(authorization);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+
+        return new AuthData(null,null,null);
     }
 
     public AuthData createAuth(UserData user) {

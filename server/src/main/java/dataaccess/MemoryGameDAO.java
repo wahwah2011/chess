@@ -3,13 +3,14 @@ package dataaccess;
 import model.GameData;
 import model.GameList;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 public class MemoryGameDAO implements GameDAO {
     //give this a private data structure type that can store information?
-    private HashSet<GameData> games = new HashSet<>();
+    private ArrayList<GameData> games = new ArrayList<>();
 
     @Override
     public void createGame(GameData gameData) throws DataAccessException {

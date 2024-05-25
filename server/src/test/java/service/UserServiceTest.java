@@ -3,7 +3,7 @@ package service;
 import dataaccess.*;
 import model.AuthData;
 import model.UserData;
-import org.junit.jupiter.api.AfterEach;
+import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -70,6 +70,35 @@ class UserServiceTest {
     }
 
     @Test
-    void logout() {
+    void logoutSuccess() {
+        UserData user = new UserData("Henry", "12345", "henry@mail.com");
+        AuthData expected = new AuthData(null,null,null);
+
+        AuthData regAuth = userService.register(user);
+        AuthData loginAuth = userService.login(user);
+
+        AuthData logout = new AuthData(loginAuth.authToken(), loginAuth.username(),null);
+
+        AuthData actual = userService.logout(logout);
+
+        System.out.println("logoutAuth: " + actual.toString());
+
+        assertEquals(actual, expected);
+    }
+
+    @Test
+    void logoutFail() {
+        UserData user = new UserData("Henry", "12345", "henry@mail.com");
+        AuthData falseUser = new AuthData("2134125412", "Henry", null);
+
+        AuthData regAuth = userService.register(user);
+        AuthData loginAuth = userService.login(user);
+
+        AuthData falseLogout = userService.logout(falseUser);
+
+        System.out.println("falseLogout: " + falseLogout.toString());
+
+        String expectedMessage = "Error: unauthorized";
+        assertTrue(falseLogout.message() == expectedMessage);
     }
 }

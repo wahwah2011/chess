@@ -1,7 +1,8 @@
 package handler;
 
 import com.google.gson.Gson;
-import dataaccess.*;
+import dataaccess.AuthDAO;
+import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
 import service.UserService;
@@ -9,12 +10,12 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-public class LoginHandler implements Route {
+public class LogoutHandler implements Route {
 
     private UserDAO userDAO;
     private AuthDAO authDAO;
 
-    public LoginHandler(AuthDAO authDAO, UserDAO userDAO) {
+    public LogoutHandler(AuthDAO authDAO, UserDAO userDAO) {
         this.authDAO = authDAO;
         this.userDAO = userDAO;
     }
@@ -23,20 +24,20 @@ public class LoginHandler implements Route {
     public Object handle(Request request, Response response) throws Exception {
         UserService registerService = new UserService(userDAO, authDAO);
         Gson serializer = new Gson();
-        UserData newUser;
         AuthData result;
 
-        // Deserialize the request body to UserData
-        newUser = serializer.fromJson(request.body(), UserData.class);
+        // get the authToken string from the header of the incoming http file
+        String authtoken = request.headers("authorization");
+        AuthData auth = new AuthData(authtoken, null, null);
 
         //check if bad request
-        if (newUser.username() == null || newUser.password() == null) {
+        if (authtoken == null) {
             response.status(400); // Internal Server Error
             result = new AuthData(null,null,"Error: bad request");
             return serializer.toJson(result);
         }
 
-        result = registerService.login(newUser);
+        result = registerService.logout(auth);
 
         if (result.message() != null) {
             String message = result.message();

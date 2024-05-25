@@ -2,6 +2,7 @@ package server;
 
 import handler.ClearHandler;
 import handler.LoginHandler;
+import handler.LogoutHandler;
 import handler.RegisterHandler;
 import spark.*;
 import dataaccess.*;
@@ -15,6 +16,7 @@ public class Server {
     private ClearHandler clearHandler;
     private RegisterHandler registerHandler;
     private LoginHandler loginHandler;
+    private LogoutHandler logoutHandler;
 
     public int run(int desiredPort) {
 
@@ -25,6 +27,7 @@ public class Server {
         clearHandler = new ClearHandler(userData, gameData, authData);
         registerHandler = new RegisterHandler(userData, authData);
         loginHandler = new LoginHandler(authData, userData);
+        logoutHandler = new LogoutHandler(authData, userData);
 
 
         Spark.port(desiredPort);
@@ -32,9 +35,10 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-        Spark.delete("/db", (request, response) -> clearHandler.handle(request, response));
         Spark.post("/user", ((request, response) -> registerHandler.handle(request,response)));
         Spark.post("/session", (request, response) -> loginHandler.handle(request, response));
+        Spark.delete("/session", (request, response) -> logoutHandler.handle(request, response));
+        Spark.delete("/db", (request, response) -> clearHandler.handle(request, response));
 
         Spark.init();
         Spark.awaitInitialization();
