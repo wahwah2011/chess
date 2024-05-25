@@ -15,33 +15,40 @@ public class GameService extends Authorization {
     }
 
     public GameList listGames(AuthData authorization) {
+        AuthData authorized;
+        GameList list;
+
+        authorized = authorize(authorization);
+        if (authorized.message() != null) {
+            list = new GameList(null,authorized.message());
+            return list;
+        }
+
         try {
-            authDAO.getAuth(authorization);
+            list = gameDAO.listGames();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
 
-        try {
-            return gameDAO.listGames();
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+        return list;
     }
 
     //could also pass in a GameData object that only contains an initialized gameName
     public GameData createGame(AuthData authorization, GameData gameData) {
+        AuthData authorized;
+        GameData game;
+
+        authorized = authorize(authorization);
+        if (authorized.message() != null) {
+            game = new GameData(null,null,null,null,null, authorized.message());
+            return game;
+        }
+
         try {
-            authDAO.getAuth(authorization);
+            return gameDAO.createGame(gameData);
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-        try {
-            //handle creation of gameID in handler?
-            gameDAO.createGame(gameData);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
-        return gameData;
     }
 
     public void joinGame(AuthData authorization, GameData gameData) {}

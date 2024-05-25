@@ -58,7 +58,7 @@ public class UserService extends Authorization {
     }
 
     public AuthData logout(AuthData auth) {
-        AuthData authorized = new AuthData(null,null,null);
+        AuthData authorized;
         authorized = authorize(auth);
         if (authorized.message() != null) {
             return authorized;

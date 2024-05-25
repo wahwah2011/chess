@@ -51,7 +51,7 @@ class ClearTest {
             throw new RuntimeException(e);
         }
         try {
-            gameDAO.createGame(new GameData(12345,"","","practiceGame", new ChessGame()));
+            gameDAO.createGame(new GameData(12345,"","","practiceGame", new ChessGame(), null));
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
