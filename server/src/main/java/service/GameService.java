@@ -6,12 +6,11 @@ import model.GameData;
 import model.GameList;
 
 
-public class GameService {
-    private AuthDAO authDAO;
+public class GameService extends Authorization {
     private GameDAO gameDAO;
 
     public GameService(AuthDAO authDAO, GameDAO gameDAO) {
-        this.authDAO = authDAO;
+        super.authDAO = authDAO;
         this.gameDAO = gameDAO;
     }
 

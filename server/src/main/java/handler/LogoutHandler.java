@@ -27,11 +27,10 @@ public class LogoutHandler implements Route {
         AuthData result;
 
         // get the authToken string from the header of the incoming http file
-        String authtoken = request.headers("authorization");
-        AuthData auth = new AuthData(authtoken, null, null);
+        AuthData auth = new AuthData(request.headers("authorization"), null, null);
 
         //check if bad request
-        if (authtoken == null) {
+        if (auth.authToken() == null) {
             response.status(400); // Internal Server Error
             result = new AuthData(null,null,"Error: bad request");
             return serializer.toJson(result);

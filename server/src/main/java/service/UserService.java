@@ -7,13 +7,12 @@ import model.Response.Response;
 
 import java.util.UUID;
 
-public class UserService {
+public class UserService extends Authorization {
     private UserDAO userDAO;
-    private AuthDAO authDAO;
 
     public UserService(UserDAO userDAO, AuthDAO authDAO) {
         this.userDAO = userDAO;
-        this.authDAO = authDAO;
+        super.authDAO = authDAO;
     }
 
     //done
@@ -59,13 +58,14 @@ public class UserService {
     }
 
     public AuthData logout(AuthData auth) {
-        try {
-            authDAO.getAuth(auth);
-        } catch (DataAccessException e) {
-            return new AuthData(null,null, "Error: unauthorized");
+        AuthData authorized = new AuthData(null,null,null);
+        authorized = authorize(auth);
+        if (authorized.message() != null) {
+            return authorized;
         }
+
         try {
-            authDAO.deleteAuth(auth);
+            authDAO.deleteAuth(authorized);
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
