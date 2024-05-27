@@ -41,22 +41,6 @@ public class BoardStats {
     }
 
     //should work
-    public Collection<ChessMove> friendlyMoves(ChessGame.TeamColor teamColor) {
-        ArrayList<ChessPosition> positions = new ArrayList<>(friendlyPositions(teamColor));
-        ArrayList<ChessMove> frdMoves = new ArrayList<>();
-        ChessBoard gameBoard = game.getBoard();
-
-        //iterate through positions and find all possible moves for given gameboard
-        for (ChessPosition pos : positions) {
-            game.validMoves(pos);
-            ChessPiece piece = gameBoard.getPiece(pos);
-            frdMoves.addAll(piece.pieceMoves(gameBoard,pos));
-        }
-
-        return frdMoves;
-    }
-
-    //should work
     public Collection<ChessMove> enemyMoves(ChessGame.TeamColor teamColor) {
         ArrayList<ChessPosition> positions = new ArrayList<>(enemyPositions(teamColor));
         ArrayList<ChessMove> oppMoves = new ArrayList<>();

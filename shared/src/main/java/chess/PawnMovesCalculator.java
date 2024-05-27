@@ -9,13 +9,7 @@ public class PawnMovesCalculator extends PieceMovesCalculator {
     }
 
     public ArrayList<ChessMove> pawnMoves() {
-        ArrayList<ChessMove> moves = new ArrayList<>();
-        if (getColor() == ChessGame.TeamColor.WHITE) {
-            moves.addAll(whitePawnMoves());
-        }
-        else if (getColor() == ChessGame.TeamColor.BLACK) {
-            moves.addAll(blackPawnMoves());
-        }
+        ArrayList<ChessMove> moves = new ArrayList<>(pawnMoves(this.getColor()));
         return moves;
     }
 }

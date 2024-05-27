@@ -66,7 +66,6 @@ class UserServiceTest {
 
         String expectedMessage = "Error: unauthorized";
         assertSame(loginAuth.message(), expectedMessage);
-
     }
 
     @Test

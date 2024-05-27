@@ -4,7 +4,7 @@ import chess.ChessGame;
 import dataaccess.*;
 import model.AuthData;
 import model.GameData;
-import model.Response.ClearResponse;
+import model.ClearResponse;
 import model.UserData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

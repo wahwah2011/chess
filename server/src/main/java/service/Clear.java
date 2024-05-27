@@ -1,7 +1,7 @@
 package service;
 
 import dataaccess.*;
-import model.Response.ClearResponse;
+import model.ClearResponse;
 
 public class Clear {
     private final MemoryAuthDAO authDAO;
@@ -35,8 +35,6 @@ public class Clear {
             throw new RuntimeException(e);
         }
 
-        ClearResponse response = new ClearResponse();
-
-        return response;
+        return new ClearResponse(null);
     }
 }

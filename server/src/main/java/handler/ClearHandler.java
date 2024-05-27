@@ -3,7 +3,7 @@ package handler;
 import com.google.gson.Gson;
 import dataaccess.*;
 import handler.json.*;
-import model.Response.ClearResponse;
+import model.ClearResponse;
 import server.Server;
 import service.Clear;
 import spark.*;
