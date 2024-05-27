@@ -15,6 +15,7 @@ public class Server {
     private LoginHandler loginHandler;
     private LogoutHandler logoutHandler;
     private CreateGameHandler createGameHandler;
+    private ListGameHandler listGameHandler;
 
     public int run(int desiredPort) {
 
@@ -27,7 +28,7 @@ public class Server {
         loginHandler = new LoginHandler(authData, userData);
         logoutHandler = new LogoutHandler(authData, userData);
         createGameHandler = new CreateGameHandler(gameData,authData);
-
+        listGameHandler = new ListGameHandler(gameData,authData);
 
         Spark.port(desiredPort);
 
@@ -37,6 +38,7 @@ public class Server {
         Spark.post("/user", ((request, response) -> registerHandler.handle(request,response)));
         Spark.post("/session", (request, response) -> loginHandler.handle(request, response));
         Spark.post("/game", (request, response) -> createGameHandler.handle(request, response));
+        Spark.get("/game", (request, response) -> listGameHandler.handle(request, response));
         Spark.delete("/session", (request, response) -> logoutHandler.handle(request, response));
         Spark.delete("/db", (request, response) -> clearHandler.handle(request, response));
 
