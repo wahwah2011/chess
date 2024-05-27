@@ -12,13 +12,13 @@ public class Authorization {
     //this class should contain authorization code for requests
 
     public AuthData authorize(AuthData auth) {
-
+        AuthData authorization = null;
         try {
-            authDAO.getAuth(auth);
+            authorization = authDAO.getAuth(auth);
         } catch (DataAccessException e) {
             return new AuthData(null,null, "Error: unauthorized");
         }
 
-        return auth;
+        return authorization;
     }
 }

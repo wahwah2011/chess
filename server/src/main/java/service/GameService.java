@@ -4,6 +4,7 @@ import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import model.GameList;
+import model.JoinRequest;
 
 
 public class GameService extends Authorization {
@@ -51,7 +52,30 @@ public class GameService extends Authorization {
         }
     }
 
-    public void joinGame(AuthData authorization, GameData gameData) {}
+    public AuthData joinGame(AuthData authorization, JoinRequest joinRequest) {
+        AuthData authorized;
+        GameData game;
+        String color = joinRequest.playerColor();
 
+        authorized = authorize(authorization);
+        if (authorized.message() != null) {
+            return new AuthData(null,null,authorized.message());
+        }
 
+        String username = authorized.username();
+
+        try {
+            game = gameDAO.getGame(joinRequest);
+        } catch (DataAccessException e) {
+            return new AuthData(null,null,"Error: bad request");
+        }
+
+        try {
+            gameDAO.updateGame(game, joinRequest, authorized.username());
+        } catch (DataAccessException e) {
+            return new AuthData(null,null, "Error: already taken");
+        }
+
+        return new AuthData(null,null,null);
+    }
 }

@@ -4,6 +4,7 @@ import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import model.GameList;
+import model.JoinRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -100,10 +101,34 @@ class GameServiceTest {
     }
 
     @Test
-    void joinGamePass() {
+    void joinGamePass() throws DataAccessException {
+        GameData testGame = new GameData(1234, null,null,"testGame", null, null);
+        gameDAO.addGame(testGame);
+        authDAO.createAuth(new AuthData("authToken", "testUser", null));
+
+        AuthData expected = new AuthData(null,null,null);
+        JoinRequest data = new JoinRequest("BLACK", 1234);
+
+        AuthData result = gameService.joinGame(new AuthData("authToken",null,null),data);
+
+        System.out.println(result.toString());
+
+        assertEquals(result,expected);
     }
 
     @Test
-    void joinGameFail() {
+    void joinGameFail() throws DataAccessException {
+        GameData testGame = new GameData(4321, null,"Your mom!","testGame", null, null);
+        gameDAO.addGame(testGame);
+        authDAO.createAuth(new AuthData("authToken", "testUser", null));
+
+        AuthData expected = new AuthData(null,null,null);
+        JoinRequest data = new JoinRequest("BLACK", 4321);
+
+        AuthData result = gameService.joinGame(new AuthData("authToken",null,null),data);
+
+        System.out.println(result.toString());
+
+        assertNotEquals(result,expected);
     }
 }

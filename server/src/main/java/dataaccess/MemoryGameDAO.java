@@ -1,7 +1,9 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.GameData;
 import model.GameList;
+import model.JoinRequest;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -24,10 +26,8 @@ public class MemoryGameDAO implements GameDAO {
         return returnGame;
     }
 
-    @Override
-    public GameData getGame(GameData gameData) throws DataAccessException {
-        if (games.contains(gameData)) return gameData;
-        else return null;
+    public void addGame(GameData gameData) {
+        games.add(gameData);
     }
 
     @Override
@@ -36,17 +36,60 @@ public class MemoryGameDAO implements GameDAO {
         return gameList;
     }
 
-
-
-
-/*
-    Updates a chess game. It should replace the chess game string corresponding to a given gameID.
-    This is used when players join a game or when a move is made.
-    Just replace the whole ChessGame object--you can make it a separate method if you want
-*/
     @Override
-    public void updateGame(GameData gameData, String userName) throws DataAccessException {
+    public GameData getGame(JoinRequest joinRequest) throws DataAccessException {
+        GameData game = new GameData(null,null,null,null,null,null);
+        int gameID = joinRequest.gameID();
+        for (GameData g : games) {
+            int currGameID = g.gameID();
+            if (currGameID == gameID) {
+                game = g;
+            }
+        }
+        if (game.gameID() != null) {
+            return game;
+        }
+        else throw new DataAccessException("you are lame, your game doesn't exist");
+    }
 
+    @Override
+    public void updateGame(GameData game, JoinRequest joinRequest, String userName) throws DataAccessException {
+        String color = joinRequest.playerColor();
+        GameData updateGame;
+
+        if (color.equals("BLACK")) {
+            if (game.blackUsername() == null) {
+                updateGame = updateTeamUser(game,joinRequest.playerColor(),userName);
+                games.remove(game);
+                games.add(updateGame);
+            }
+            else throw new DataAccessException("Black name already taken");
+        }
+        else if (color.equals("WHITE")) {
+            if (game.whiteUsername() == null) {
+                updateGame = updateTeamUser(game,joinRequest.playerColor(),userName);
+                games.remove(game);
+                games.add(updateGame);
+            }
+            else throw new DataAccessException("White name already taken");
+        }
+    }
+
+    public GameData updateTeamUser(GameData gameData, String color, String userName) {
+        int gameID = gameData.gameID();
+        String blackUsername = gameData.blackUsername();
+        String whiteUsername = gameData.whiteUsername();
+        if ((Objects.equals(color, "BLACK")) && (blackUsername == null)) {
+            blackUsername = userName;
+        }
+        else if ((Objects.equals(color, "WHITE")) && (whiteUsername == null)) {
+            whiteUsername = userName;
+        }
+        String gameName = gameData.gameName();
+        ChessGame game = gameData.game();
+        String message = gameData.message();
+
+        return new GameData(gameID,whiteUsername,blackUsername,gameName,game,message);
     }
 
     @Override
