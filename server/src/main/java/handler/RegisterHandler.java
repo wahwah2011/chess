@@ -39,7 +39,6 @@ public class RegisterHandler implements Route {
 
         result = registerService.register(newUser);
 
-
         if (result.message() != null) {
             String message = result.message();
             if (message.equals("Error: already taken")) {
