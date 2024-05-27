@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import spark.*;
 
 public class FromJson {
-    private Request json;
+    private final Request json;
 
     public FromJson(Request json) {
         this.json = json;

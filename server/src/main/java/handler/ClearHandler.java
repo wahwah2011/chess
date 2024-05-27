@@ -10,9 +10,9 @@ import spark.*;
 
 
 public class ClearHandler implements Route {
-    private MemoryUserDAO userData;
-    private MemoryGameDAO gameData;
-    private MemoryAuthDAO authData;
+    private final MemoryUserDAO userData;
+    private final MemoryGameDAO gameData;
+    private final MemoryAuthDAO authData;
 
     public ClearHandler(MemoryUserDAO userData, MemoryGameDAO gameData, MemoryAuthDAO authData) {
         this.userData = userData;

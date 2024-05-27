@@ -8,7 +8,7 @@ import model.Response.Response;
 import java.util.UUID;
 
 public class UserService extends Authorization {
-    private UserDAO userDAO;
+    private final UserDAO userDAO;
 
     public UserService(UserDAO userDAO, AuthDAO authDAO) {
         this.userDAO = userDAO;

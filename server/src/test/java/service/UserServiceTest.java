@@ -65,7 +65,7 @@ class UserServiceTest {
         System.out.println("loginAuth: " + loginAuth.toString());
 
         String expectedMessage = "Error: unauthorized";
-        assertTrue(loginAuth.message() == expectedMessage);
+        assertSame(loginAuth.message(), expectedMessage);
 
     }
 
@@ -99,6 +99,6 @@ class UserServiceTest {
         System.out.println("falseLogout: " + falseLogout.toString());
 
         String expectedMessage = "Error: unauthorized";
-        assertTrue(falseLogout.message() == expectedMessage);
+        assertSame(falseLogout.message(), expectedMessage);
     }
 }

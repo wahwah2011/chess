@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Objects;
 
 public class BoardStats {
-    private ChessGame game;
+    private final ChessGame game;
 
     public BoardStats(ChessGame game) {
         this.game = game;

@@ -3,7 +3,7 @@ package handler.json;
 import com.google.gson.Gson;
 
 public class ToJson {
-    private Object responseObj;
+    private final Object responseObj;
 
     public ToJson(Object responseObj) {
         this.responseObj = responseObj;

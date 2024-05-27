@@ -8,7 +8,7 @@ import java.util.Set;
 
 public class MemoryAuthDAO implements AuthDAO {
 
-    private HashSet<AuthData> auth = new HashSet<>();
+    private final HashSet<AuthData> auth = new HashSet<>();
 
     @Override
     public void createAuth(AuthData authData) throws DataAccessException {

@@ -11,8 +11,8 @@ import spark.Route;
 
 public class LoginHandler implements Route {
 
-    private UserDAO userDAO;
-    private AuthDAO authDAO;
+    private final UserDAO userDAO;
+    private final AuthDAO authDAO;
 
     public LoginHandler(AuthDAO authDAO, UserDAO userDAO) {
         this.authDAO = authDAO;

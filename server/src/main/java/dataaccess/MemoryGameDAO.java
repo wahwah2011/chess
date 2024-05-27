@@ -11,15 +11,15 @@ import java.util.Random;
 
 public class MemoryGameDAO implements GameDAO {
     //give this a private data structure type that can store information?
-    private ArrayList<GameData> games = new ArrayList<>();
+    private final ArrayList<GameData> games = new ArrayList<>();
 
     @Override
     public GameData createGame(GameData gameData) throws DataAccessException {
         Random random = new Random();
         int gameID = random.nextInt(100000);
 
-        GameData newGame = new GameData(gameID,null,null, gameData.gameName(),null,null);
-        GameData returnGame = new GameData(gameID,null,null,null,null,null);
+        GameData newGame = new GameData(gameID, null, null, gameData.gameName(), null, null);
+        GameData returnGame = new GameData(gameID, null, null, null, null, null);
 
         games.add(newGame);
 
@@ -38,7 +38,7 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public GameData getGame(JoinRequest joinRequest) throws DataAccessException {
-        GameData game = new GameData(null,null,null,null,null,null);
+        GameData game = new GameData(null, null, null, null, null, null);
         int gameID = joinRequest.gameID();
         for (GameData g : games) {
             int currGameID = g.gameID();
@@ -48,8 +48,7 @@ public class MemoryGameDAO implements GameDAO {
         }
         if (game.gameID() != null) {
             return game;
-        }
-        else throw new DataAccessException("you are lame, your game doesn't exist");
+        } else throw new DataAccessException("you are lame, your game doesn't exist");
     }
 
     @Override
@@ -59,19 +58,16 @@ public class MemoryGameDAO implements GameDAO {
 
         if (color.equals("BLACK")) {
             if (game.blackUsername() == null) {
-                updateGame = updateTeamUser(game,joinRequest.playerColor(),userName);
+                updateGame = updateTeamUser(game, joinRequest.playerColor(), userName);
                 games.remove(game);
                 games.add(updateGame);
-            }
-            else throw new DataAccessException("Black name already taken");
-        }
-        else if (color.equals("WHITE")) {
+            } else throw new DataAccessException("Black name already taken");
+        } else if (color.equals("WHITE")) {
             if (game.whiteUsername() == null) {
-                updateGame = updateTeamUser(game,joinRequest.playerColor(),userName);
+                updateGame = updateTeamUser(game, joinRequest.playerColor(), userName);
                 games.remove(game);
                 games.add(updateGame);
-            }
-            else throw new DataAccessException("White name already taken");
+            } else throw new DataAccessException("White name already taken");
         }
     }
 
@@ -81,15 +77,14 @@ public class MemoryGameDAO implements GameDAO {
         String whiteUsername = gameData.whiteUsername();
         if ((Objects.equals(color, "BLACK")) && (blackUsername == null)) {
             blackUsername = userName;
-        }
-        else if ((Objects.equals(color, "WHITE")) && (whiteUsername == null)) {
+        } else if ((Objects.equals(color, "WHITE")) && (whiteUsername == null)) {
             whiteUsername = userName;
         }
         String gameName = gameData.gameName();
         ChessGame game = gameData.game();
         String message = gameData.message();
 
-        return new GameData(gameID,whiteUsername,blackUsername,gameName,game,message);
+        return new GameData(gameID, whiteUsername, blackUsername, gameName, game, message);
     }
 
     @Override

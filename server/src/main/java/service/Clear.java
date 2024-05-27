@@ -4,9 +4,9 @@ import dataaccess.*;
 import model.Response.ClearResponse;
 
 public class Clear {
-    private MemoryAuthDAO authDAO;
-    private MemoryUserDAO userDAO;
-    private MemoryGameDAO gameDAO;
+    private final MemoryAuthDAO authDAO;
+    private final MemoryUserDAO userDAO;
+    private final MemoryGameDAO gameDAO;
 
     public Clear(MemoryAuthDAO authDAO, MemoryUserDAO userDAO, MemoryGameDAO gameDAO) {
         this.authDAO = authDAO;

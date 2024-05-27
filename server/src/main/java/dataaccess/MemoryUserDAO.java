@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class MemoryUserDAO implements UserDAO {
 
-    private HashSet<UserData> users = new HashSet<>();
+    private final HashSet<UserData> users = new HashSet<>();
 
     @Override
     public void createUser(UserData userData) throws DataAccessException {
@@ -25,6 +25,7 @@ public class MemoryUserDAO implements UserDAO {
         for (UserData u : users) {
             if (u.username().equals(user.username()) && u.password().equals(user.password())) {
                 exists = true;
+                break;
             }
         }
         if (exists) {

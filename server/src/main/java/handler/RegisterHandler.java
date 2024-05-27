@@ -12,8 +12,8 @@ import spark.*;
 
 public class RegisterHandler implements Route {
 
-    private UserDAO userDAO;
-    private AuthDAO authDAO;
+    private final UserDAO userDAO;
+    private final AuthDAO authDAO;
 
     public RegisterHandler(UserDAO userData, AuthDAO authData) {
         this.userDAO = userData;

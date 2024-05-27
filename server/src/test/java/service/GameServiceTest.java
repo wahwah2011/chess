@@ -40,7 +40,7 @@ class GameServiceTest {
         System.out.println(response.toString());
         String errMessage = "Error: unauthorized";
 
-        assertTrue(response.message() != errMessage);
+        assertNotSame(response.message(), errMessage);
     }
 
     @Test
@@ -54,7 +54,7 @@ class GameServiceTest {
         System.out.println(response.toString());
         String errMessage = "Error: unauthorized";
 
-        assertTrue(response.message() == errMessage);
+        assertSame(response.message(), errMessage);
     }
 
     @Test
@@ -74,7 +74,7 @@ class GameServiceTest {
         GameList list = gameService.listGames(auth);
 
         System.out.println(list.toString());
-        assertTrue(list.message() == null);
+        assertNull(list.message());
     }
 
     @Test
@@ -97,7 +97,7 @@ class GameServiceTest {
         System.out.println(list.toString());
 
         String expectedMessage = "Error: unauthorized";
-        assertTrue(list.message() == expectedMessage);
+        assertSame(list.message(), expectedMessage);
     }
 
     @Test

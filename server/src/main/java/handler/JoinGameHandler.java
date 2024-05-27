@@ -10,8 +10,8 @@ import spark.Route;
 
 public class JoinGameHandler implements Route {
 
-    private GameDAO gameDAO;
-    private AuthDAO authDAO;
+    private final GameDAO gameDAO;
+    private final AuthDAO authDAO;
 
     public JoinGameHandler(GameDAO gameDAO, AuthDAO authDAO) {
         this.gameDAO = gameDAO;
@@ -25,9 +25,6 @@ public class JoinGameHandler implements Route {
         Gson serializer = new Gson();
         AuthData result;
 
-        //Gson s
-        //AuthData auth = header
-        //JoinRequest joinRequest =
         AuthData auth = new AuthData(request.headers("authorization"), null, null);
         JoinRequest joinRequest = serializer.fromJson(request.body(), JoinRequest.class);
 

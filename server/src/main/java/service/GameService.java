@@ -8,7 +8,7 @@ import model.JoinRequest;
 
 
 public class GameService extends Authorization {
-    private GameDAO gameDAO;
+    private final GameDAO gameDAO;
 
     public GameService(AuthDAO authDAO, GameDAO gameDAO) {
         super.authDAO = authDAO;
