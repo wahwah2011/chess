@@ -7,10 +7,6 @@ import dataaccess.*;
 
 public class Server {
 
-    //create DAOs as instance variables
-    private UserDAO userData;
-    private GameDAO gameData;
-    private AuthDAO authData;
     private ClearHandler clearHandler;
     private RegisterHandler registerHandler;
     private LoginHandler loginHandler;
@@ -21,17 +17,18 @@ public class Server {
 
     public int run(int desiredPort) {
 
-        userData = new SQLUserDAO();
-        gameData = new SQLGameDAO();
-        authData = new SQLAuthDAO();
+        //create DAOs as instance variables
+        UserDAO userData = new SQLUserDAO();
+        GameDAO gameData = new SQLGameDAO();
+        AuthDAO authData = new SQLAuthDAO();
 
         clearHandler = new ClearHandler(userData, gameData, authData);
         registerHandler = new RegisterHandler(userData, authData);
         loginHandler = new LoginHandler(authData, userData);
         logoutHandler = new LogoutHandler(authData, userData);
-        createGameHandler = new CreateGameHandler(gameData,authData);
-        listGameHandler = new ListGameHandler(gameData,authData);
-        joinGameHandler = new JoinGameHandler(gameData,authData);
+        createGameHandler = new CreateGameHandler(gameData, authData);
+        listGameHandler = new ListGameHandler(gameData, authData);
+        joinGameHandler = new JoinGameHandler(gameData, authData);
 
         Spark.port(desiredPort);
 

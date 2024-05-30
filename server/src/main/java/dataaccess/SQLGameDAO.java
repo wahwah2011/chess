@@ -48,9 +48,8 @@ public class SQLGameDAO implements GameDAO {
                 whiteUsername VARCHAR(255),
                 blackUsername VARCHAR(255),
                 gameName VARCHAR(255),
-                game VARCHAR(1000)
+                game TEXT
             );
-            
             """
     };
 
