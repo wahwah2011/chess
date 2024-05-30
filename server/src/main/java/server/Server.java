@@ -1,15 +1,16 @@
 package server;
 
 import handler.*;
+import org.eclipse.jetty.server.Authentication;
 import spark.*;
 import dataaccess.*;
 
 public class Server {
 
     //create DAOs as instance variables
-    private MemoryUserDAO userData;
-    private MemoryGameDAO gameData;
-    private MemoryAuthDAO authData;
+    private UserDAO userData;
+    private GameDAO gameData;
+    private AuthDAO authData;
     private ClearHandler clearHandler;
     private RegisterHandler registerHandler;
     private LoginHandler loginHandler;
@@ -20,9 +21,9 @@ public class Server {
 
     public int run(int desiredPort) {
 
-        userData = new MemoryUserDAO();
-        gameData = new MemoryGameDAO();
-        authData = new MemoryAuthDAO();
+        userData = new SQLUserDAO();
+        gameData = new SQLGameDAO();
+        authData = new SQLAuthDAO();
 
         clearHandler = new ClearHandler(userData, gameData, authData);
         registerHandler = new RegisterHandler(userData, authData);
