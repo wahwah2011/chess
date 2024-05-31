@@ -31,7 +31,7 @@ public class UserService extends Authorization {
             try {
                 authDAO.createAuth(authorization);
             } catch (DataAccessException g) {
-                authorization = new AuthData(null,null,"Error: bad request");
+                //
             }
         }
 

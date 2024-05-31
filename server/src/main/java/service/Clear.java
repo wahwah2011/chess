@@ -16,15 +16,15 @@ public class Clear {
 
     public ClearResponse clearGame() {
         //access and clear each of the above data structures:
-        //gameDAO
-        try {
-            gameDAO.clear();
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
         //authDAO
         try {
             authDAO.clear();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+        //gameDAO
+        try {
+            gameDAO.clear();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
