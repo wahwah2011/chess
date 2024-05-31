@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.AuthData;
+import model.UserData;
 
 import java.sql.*;
 
@@ -24,17 +25,38 @@ public class SQLAuthDAO implements AuthDAO {
 
     @Override
     public AuthData getAuth(AuthData authData) throws DataAccessException {
-        return null;
+        String auth = authData.authToken();
+        AuthData returnAuth;
+        try (var conn = DatabaseManager.getConnection()) {
+            String statement = "SELECT authToken, username FROM auth WHERE authToken=?";
+            try (PreparedStatement stmt = conn.prepareStatement(statement)) {
+                stmt.setString(1,auth);
+
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        String authToken = rs.getString(1);
+                        String username = rs.getString(2);
+                        returnAuth = new AuthData(authToken,username,null);
+                        return returnAuth;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("unable to get user: %s", e.getMessage()));
+        }
+        throw new DataAccessException("username doesn't exist");
     }
 
     @Override
     public void deleteAuth(AuthData authData) throws DataAccessException {
-
+        String authToken = authData.authToken();
+        String statement = "DELETE FROM auth WHERE authToken=?";
+        executeUpdate(statement, authToken);
     }
 
     @Override
     public void clear() throws DataAccessException {
-        String statement = "DELETE FROM auth WHERE username IS NOT NULL;";
+        String statement = "DELETE FROM auth WHERE username IS NOT NULL";
         executeUpdate(statement);
     }
 
