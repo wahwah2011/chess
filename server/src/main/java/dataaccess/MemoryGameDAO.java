@@ -53,18 +53,18 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public void updateGame(GameData game, JoinRequest joinRequest, String userName) throws DataAccessException {
-        String color = joinRequest.playerColor();
+        ChessGame.TeamColor color = joinRequest.playerColor();
         GameData updateGame;
 
-        if (color.equals("BLACK")) {
+        if (color.equals(ChessGame.TeamColor.BLACK)) {
             if (game.blackUsername() == null) {
-                updateGame = updateTeamUser(game, joinRequest.playerColor(), userName);
+                updateGame = updateTeamUser(game, "BLACK", userName);
                 games.remove(game);
                 games.add(updateGame);
             } else throw new DataAccessException("Black name already taken");
-        } else if (color.equals("WHITE")) {
+        } else if (color.equals(ChessGame.TeamColor.WHITE)) {
             if (game.whiteUsername() == null) {
-                updateGame = updateTeamUser(game, joinRequest.playerColor(), userName);
+                updateGame = updateTeamUser(game, "WHITE", userName);
                 games.remove(game);
                 games.add(updateGame);
             } else throw new DataAccessException("White name already taken");

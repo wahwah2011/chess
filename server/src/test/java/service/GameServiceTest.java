@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.*;
 import model.AuthData;
 import model.GameData;
@@ -107,7 +108,7 @@ class GameServiceTest {
         authDAO.createAuth(new AuthData("authToken", "testUser", null));
 
         AuthData expected = new AuthData(null,null,null);
-        JoinRequest data = new JoinRequest("BLACK", 1234);
+        JoinRequest data = new JoinRequest(ChessGame.TeamColor.BLACK, 1234);
 
         AuthData result = gameService.joinGame(new AuthData("authToken",null,null),data);
 
@@ -123,7 +124,7 @@ class GameServiceTest {
         authDAO.createAuth(new AuthData("authToken", "testUser", null));
 
         AuthData expected = new AuthData(null,null,null);
-        JoinRequest data = new JoinRequest("BLACK", 4321);
+        JoinRequest data = new JoinRequest(ChessGame.TeamColor.BLACK, 4321);
 
         AuthData result = gameService.joinGame(new AuthData("authToken",null,null),data);
 

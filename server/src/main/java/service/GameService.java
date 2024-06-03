@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.*;
 import model.AuthData;
 import model.GameData;
@@ -55,7 +56,7 @@ public class GameService extends Authorization {
     public AuthData joinGame(AuthData authorization, JoinRequest joinRequest) {
         AuthData authorized;
         GameData game;
-        String color = joinRequest.playerColor();
+        ChessGame.TeamColor color = joinRequest.playerColor();
 
         authorized = authorize(authorization);
         if (authorized.message() != null) {
@@ -71,7 +72,7 @@ public class GameService extends Authorization {
         }
 
         try {
-            gameDAO.updateGame(game, joinRequest, authorized.username());
+            gameDAO.updateGame(game, joinRequest, username);
         } catch (DataAccessException e) {
             return new AuthData(null,null, "Error: already taken");
         }

@@ -1,5 +1,6 @@
 package handler;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.*;
 import model.*;
@@ -30,7 +31,7 @@ public class JoinGameHandler implements Route {
 
         //check and see if joinrequest.color() is equal to "BLACK" or "WHITE"
         if (joinRequest.playerColor() != null) {
-            if (!joinRequest.playerColor().equals("BLACK") && !joinRequest.playerColor().equals("WHITE")) {
+            if (!joinRequest.playerColor().equals(ChessGame.TeamColor.BLACK) && !joinRequest.playerColor().equals(ChessGame.TeamColor.WHITE)) {
                 response.status(400); // Internal Server Error
                 AuthData badResult = new AuthData(null,null,"Error: bad request");
                 return serializer.toJson(badResult);

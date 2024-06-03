@@ -9,4 +9,3 @@ public record GameData(Integer gameID,
                        ChessGame game,
                        String message) {
 }
-
