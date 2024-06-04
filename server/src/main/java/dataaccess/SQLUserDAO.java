@@ -92,7 +92,7 @@ public class SQLUserDAO implements UserDAO {
         return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
     }
 
-    String readHashedPasswordFromDatabase(String username) throws DataAccessException {
+    private String readHashedPasswordFromDatabase(String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             String statement = "SELECT password FROM user WHERE username=?;";
             try (PreparedStatement stmt = conn.prepareStatement(statement)) {
