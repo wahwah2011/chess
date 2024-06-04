@@ -113,7 +113,7 @@ public class SQLGameDAO implements GameDAO {
         executeUpdate(statement);
     }
 
-    private boolean teamIsEmpty(GameData gameData, ChessGame.TeamColor color) {
+    private boolean teamIsEmpty(GameData gameData, ChessGame.TeamColor color) throws DataAccessException {
         if (color.equals(ChessGame.TeamColor.BLACK)) {
             if (gameData.blackUsername() == null) {
                 return true;

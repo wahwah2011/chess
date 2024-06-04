@@ -4,6 +4,8 @@ import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
+import java.util.Arrays;
+import java.util.Objects;
 
 import static java.sql.Types.NULL;
 
@@ -28,7 +30,6 @@ public class SQLUserDAO implements UserDAO {
     @Override
     public UserData getUser(UserData user) throws DataAccessException {
         String username = user.username();
-        String password = hashPassword(user.password());
         UserData returnUser;
         if (!verifyUser(username,user.password())) {
             throw new DataAccessException("incorrect password");
