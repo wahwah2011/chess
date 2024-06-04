@@ -4,12 +4,6 @@ import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 
-import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class SQLAuthDAOTest extends DAOTest {
@@ -28,7 +22,7 @@ class SQLAuthDAOTest extends DAOTest {
 
     @Test
     void createAuth() {
-        int initialRowCount = getDatabaseRows();
+        int initialRowCount = dataRows();
         assertTrue(initialRowCount == 2, "There are a viable number of rows in your database");
     }
 
@@ -52,7 +46,7 @@ class SQLAuthDAOTest extends DAOTest {
     @Test
     void deleteAuth() throws DataAccessException {
         authData.deleteAuth(existingAuth);
-        int postCount = getDatabaseRows();
+        int postCount = dataRows();
         // should be one because originally 2, but row in authData was deleted
         assertEquals(1, postCount);
     }
@@ -61,7 +55,7 @@ class SQLAuthDAOTest extends DAOTest {
     void deleteAuthFail() throws DataAccessException {
         AuthData falseData = new AuthData("fakeToken", "ExistingUser", null);
         authData.deleteAuth(falseData);
-        int postCount = getDatabaseRows();
+        int postCount = dataRows();
         assertEquals(2,postCount);
     }
 

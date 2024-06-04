@@ -1,16 +1,8 @@
 package dataaccess;
 
 import model.UserData;
-import dataaccess.DatabaseManager;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,7 +18,7 @@ class SQLUserDAOTest extends DAOTest {
 
     @Test
     void createUser() {
-        int initialRowCount = getDatabaseRows();
+        int initialRowCount = dataRows();
         assertTrue(initialRowCount == 1, "There are a viable number of rows in your database");
     }
 

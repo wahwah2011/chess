@@ -14,57 +14,63 @@ public class DAOTest {
     SQLUserDAO userData = new SQLUserDAO();
     SQLGameDAO gameData = new SQLGameDAO();
 
-    Connection getConnection() throws ReflectiveOperationException {
-        Class<?> clazz = Class.forName("dataaccess.DatabaseManager");
-        Method getConnectionMethod = clazz.getDeclaredMethod("getConnection");
-        getConnectionMethod.setAccessible(true);
+    Connection startConnection() {
+        try {
+            Class<?> classy = Class.forName("dataaccess.DatabaseManager");
+            Method getConnectionMethod = classy.getDeclaredMethod("getConnection");
+            getConnectionMethod.setAccessible(true);
 
-        Object obj = clazz.getDeclaredConstructor().newInstance();
-        return (Connection) getConnectionMethod.invoke(obj);
+            Object object = classy.getDeclaredConstructor().newInstance();
+            return (Connection) getConnectionMethod.invoke(object);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Error accessing database connection", e);
+        }
     }
 
-    int getDatabaseRows() {
-        int rows = 0;
-        try (Connection conn = getConnection();) {
-            try (var statement = conn.createStatement()) {
-                for (String table : getTables(conn)) {
-                    var sql = "SELECT count(*) FROM " + table;
-                    try (var resultSet = statement.executeQuery(sql)) {
-                        if (resultSet.next()) {
-                            rows += resultSet.getInt(1);
-                        }
+    int dataRows() {
+        int numRows = 0;
+        try (Connection conn = startConnection()) {
+            var statement = conn.createStatement();
+            for (String t : listTabs(conn)) {
+                String sql = "SELECT count(*) FROM " + t;
+                try (var endData = statement.executeQuery(sql)) {
+                    if (endData.next()) {
+                        numRows += endData.getInt(1);
                     }
                 }
             }
-        } catch (Exception ex) {
-            Assertions.fail("Unable to load database in order to verify persistence. Are you using dataAccess.DatabaseManager to set your credentials?", ex);
+        } catch (Exception e) {
+            Assertions.fail(e);
         }
-
-        return rows;
+        return numRows;
     }
 
-    List<String> getTables(Connection conn) throws SQLException {
-        String sql = """
+    List<String> listTabs(Connection conn) {
+        String statement = """
                     SELECT table_name
                     FROM information_schema.tables
                     WHERE table_schema = DATABASE();
                 """;
 
-        List<String> tableNames = new ArrayList<>();
-        try (var preparedStatement = conn.prepareStatement(sql)) {
-            try (var resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    tableNames.add(resultSet.getString(1));
-                }
+        List<String> tables = new ArrayList<>();
+        try (var preparedStatement = conn.prepareStatement(statement);
+             var endData = preparedStatement.executeQuery()) {
+            while (endData.next()) {
+                tables.add(endData.getString(1));
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-
-        return tableNames;
+        return tables;
     }
 
-    void fullClear() throws DataAccessException {
-        authData.clear();
-        userData.clear();
-        gameData.clear();
+    void fullClear() {
+        try {
+            authData.clear();
+            userData.clear();
+            gameData.clear();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error clearing data", e);
+        }
     }
 }

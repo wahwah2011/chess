@@ -4,16 +4,8 @@ import chess.ChessGame;
 import model.GameData;
 import model.GameList;
 import model.JoinRequest;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import passoff.model.TestListResult;
-
-import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,14 +22,14 @@ class SQLGameDAOTest extends DAOTest{
 
     @Test
     void createGame() {
-        int initialRowCount = getDatabaseRows();
+        int initialRowCount = dataRows();
         assertEquals(1, initialRowCount);
     }
 
     @Test
     void createGameFail() {
         //think of a better test for this
-        int initialRowCount = getDatabaseRows();
+        int initialRowCount = dataRows();
         assertEquals(1, initialRowCount);
     }
 
@@ -84,7 +76,7 @@ class SQLGameDAOTest extends DAOTest{
     @Test
     void clear() throws DataAccessException {
         gameData.clear();
-        int numRows = getDatabaseRows();
+        int numRows = dataRows();
         assertEquals(0,numRows);
     }
 }
