@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 
@@ -19,20 +20,23 @@ public class SQLUserDAO implements UserDAO {
     @Override
     public void createUser(UserData userData) throws DataAccessException {
         //add user to chess.user according to parameters outlined in UserData
+        String hashedPassword = hashPassword(userData.password());
         var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
-        executeUpdate(statement, userData.username(), userData.password(), userData.email());
+        executeUpdate(statement, userData.username(), hashedPassword, userData.email());
     }
 
     @Override
     public UserData getUser(UserData user) throws DataAccessException {
         String username = user.username();
-        String password = user.password();
+        String password = hashPassword(user.password());
         UserData returnUser;
+        if (!verifyUser(username,user.password())) {
+            throw new DataAccessException("incorrect password");
+        }
         try (var conn = DatabaseManager.getConnection()) {
-            String statement = "SELECT username, password FROM user WHERE username=? AND password=?";
+            String statement = "SELECT username, password FROM user WHERE username=?";
             try (PreparedStatement stmt = conn.prepareStatement(statement)) {
                 stmt.setString(1,username);
-                stmt.setString(2,password);
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
                         String dbUsername = rs.getString(1);
@@ -75,6 +79,34 @@ public class SQLUserDAO implements UserDAO {
         } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
+    }
+
+    private String hashPassword(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt());
+    }
+
+    private boolean verifyUser(String username, String providedClearTextPassword) throws DataAccessException {
+        // read the previously hashed password from the database
+        var hashedPassword = readHashedPasswordFromDatabase(username);
+
+        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
+    }
+
+    String readHashedPasswordFromDatabase(String username) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            String statement = "SELECT password FROM user WHERE username=?;";
+            try (PreparedStatement stmt = conn.prepareStatement(statement)) {
+                stmt.setString(1,username);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        return rs.getString(1);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("unable to get user: %s", e.getMessage()));
+        }
+        throw new DataAccessException("unable to access password");
     }
 
     private final String[] createStatements = {
