@@ -21,14 +21,7 @@ public class DrawBoard {
         DrawBoard drawBoard = new DrawBoard();
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
-        drawBoard.drawChessBoard(out, "w");
-
-        out.print(SET_BG_COLOR_BLACK);
-        out.print(EMPTY.repeat(10));
-        out.print(RESET_BG_COLOR);
-        out.print('\n');
-
-        drawBoard.drawChessBoard(out, "b");
+        drawBoard.drawObserverView(out);
     }
 
     public DrawBoard() {
@@ -83,6 +76,24 @@ public class DrawBoard {
         drawHeaders(out, playerColor);
     }
 
+    public void drawObserverView(PrintStream out) {
+        drawChessBoard(out, "w");
+
+        out.print(SET_BG_COLOR_BLACK);
+        out.print(EMPTY.repeat(10));
+        out.print(RESET_BG_COLOR);
+        out.print('\n');
+
+        drawChessBoard(out, "b");
+    }
+
+    @Override
+    public String toString() {
+        return "DrawBoard{" +
+                "chessBoard=" + chessBoard.toString() +
+                '}';
+    }
+
     private void drawHeaders(PrintStream out, String playerColor) {
         //header or footer
         out.print(SET_BG_COLOR_LIGHT_GREY);
@@ -90,10 +101,10 @@ public class DrawBoard {
         out.print(SET_TEXT_BOLD);
         String[] headers = {"   ", " a ", " b ", " c ", " d ", " e ", " f ", " g ", " h ", "   "};
         String[] reverseHeaders = {"   ", " h ", " g ", " f ", " e ", " d ", " c ", " b ", " a ", "   "};
-        if (playerColor.equals("b")) {
+        if (playerColor.equals("black")) {
             printHeaderText(out,headers);
         }
-        else if (playerColor.equals("w")) {
+        else if (playerColor.equals("white")) {
             printHeaderText(out,reverseHeaders);
         }
         out.print(RESET_TEXT_BOLD_FAINT);
@@ -111,10 +122,10 @@ public class DrawBoard {
         int[] rowNumbers = {1, 2, 3, 4, 5, 6, 7, 8};
         int[] revRowNumbers = {8, 7, 6, 5, 4, 3, 2, 1};
 
-        if (playerColor.equals("w")) {
+        if (playerColor.equals("white")) {
             drawRows(out, revRowNumbers);
         }
-        else if (playerColor.equals("b")) {
+        else if (playerColor.equals("black")) {
             drawRows(out, rowNumbers);
         }
     }
@@ -204,12 +215,5 @@ public class DrawBoard {
             return SET_TEXT_COLOR_RED;
         }
         return SET_TEXT_COLOR_MAGENTA;
-    }
-
-    @Override
-    public String toString() {
-        return "DrawBoard{" +
-                "chessBoard=" + chessBoard.toString() +
-                '}';
     }
 }

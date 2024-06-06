@@ -1,6 +1,12 @@
 package ui;
 
+import ui.chessboardDisplay.DrawBoard;
+
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
+
+import static ui.EscapeSequences.*;
 
 public class ChessClient {
     private boolean isLoggedIn = false;
@@ -134,11 +140,16 @@ public class ChessClient {
         System.out.print("Enter team color (white/black): ");
         String teamColor = scanner.nextLine().trim().toLowerCase();
         System.out.println("Joined game successfully.");
+        DrawBoard board = new DrawBoard();
+        board.drawChessBoard(new PrintStream(System.out, true, StandardCharsets.UTF_8), teamColor);
     }
 
     private void observeGame(Scanner scanner) {
         System.out.print("Enter game number: ");
         int gameNumber = Integer.parseInt(scanner.nextLine().trim());
         System.out.println("Observing game " + gameNumber);
+        DrawBoard board = new DrawBoard();
+        PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        board.drawObserverView(out);
     }
 }
