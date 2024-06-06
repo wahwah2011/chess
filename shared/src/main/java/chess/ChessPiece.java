@@ -107,4 +107,12 @@ public class ChessPiece {
         ChessPiece clonePiece = new ChessPiece(this.pieceColor,this.type);
         return clonePiece;
     }
+
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "pieceColor=" + pieceColor +
+                ", type=" + type +
+                '}';
+    }
 }

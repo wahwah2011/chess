@@ -5,6 +5,7 @@ import java.util.Scanner;
 public class ChessClient {
     private boolean isLoggedIn = false;
     private String authToken = null;
+    //private String userTeam; for keeping track of team in printing board, making moves?
 
     public void run() {
         Scanner scanner = new Scanner(System.in);

@@ -132,4 +132,11 @@ public class ChessBoard {
         }
         return clonedBoard;
     }
+
+    @Override
+    public String toString() {
+        return "ChessBoard{" +
+                "squares=" + Arrays.toString(squares) +
+                '}';
+    }
 }
