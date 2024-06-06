@@ -135,8 +135,15 @@ public class ChessClient {
     }
 
     private void playGame(Scanner scanner) {
-        System.out.print("Enter game number: ");
-        int gameNumber = Integer.parseInt(scanner.nextLine().trim());
+        Integer gameNumber = null;
+        while(gameNumber == null) {
+            System.out.print("Enter game number: ");
+            try {
+                gameNumber = Integer.parseInt(scanner.nextLine().trim());
+            } catch (Exception e) {
+                System.out.println("Please enter a string value!\n");
+            }
+        }
         System.out.print("Enter team color (white/black): ");
         String teamColor = scanner.nextLine().trim().toLowerCase();
         System.out.println("Joined game successfully.");
@@ -145,8 +152,15 @@ public class ChessClient {
     }
 
     private void observeGame(Scanner scanner) {
-        System.out.print("Enter game number: ");
-        int gameNumber = Integer.parseInt(scanner.nextLine().trim());
+        Integer gameNumber = null;
+        while(gameNumber == null) {
+            System.out.print("Enter game number: ");
+            try {
+                gameNumber = Integer.parseInt(scanner.nextLine().trim());
+            } catch (Exception e) {
+                System.out.println("Please enter a string value!");
+            }
+        }
         System.out.println("Observing game " + gameNumber);
         DrawBoard board = new DrawBoard();
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);

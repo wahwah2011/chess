@@ -20,49 +20,12 @@ public class DrawBoard {
     public static void main(String[] args) {
         DrawBoard drawBoard = new DrawBoard();
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-
+        out.println(ERASE_LINE);
         drawBoard.drawObserverView(out);
+
     }
 
     public DrawBoard() {
-        //default board
-        /*ArrayList<DisplayPiece> pieces = new ArrayList<>();
-        pieces.add(new DisplayPiece(new ChessPosition(1,1),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK)));
-        pieces.add(new DisplayPiece(new ChessPosition(1,2),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT)));
-        pieces.add(new DisplayPiece(new ChessPosition(1,3),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP)));
-        pieces.add(new DisplayPiece(new ChessPosition(1,4),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN)));
-        pieces.add(new DisplayPiece(new ChessPosition(1,5),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING)));
-        pieces.add(new DisplayPiece(new ChessPosition(1,6),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP)));
-        pieces.add(new DisplayPiece(new ChessPosition(1,7),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT)));
-        pieces.add(new DisplayPiece(new ChessPosition(1,8),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK)));
-
-        pieces.add(new DisplayPiece(new ChessPosition(2,1),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN)));
-        pieces.add(new DisplayPiece(new ChessPosition(2,2),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN)));
-        pieces.add(new DisplayPiece(new ChessPosition(2,3),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN)));
-        pieces.add(new DisplayPiece(new ChessPosition(2,4),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN)));
-        pieces.add(new DisplayPiece(new ChessPosition(2,5),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN)));
-        pieces.add(new DisplayPiece(new ChessPosition(2,6),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN)));
-        pieces.add(new DisplayPiece(new ChessPosition(2,7),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN)));
-        pieces.add(new DisplayPiece(new ChessPosition(2,8),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN)));
-
-        pieces.add(new DisplayPiece(new ChessPosition(7,1),new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN)));
-        pieces.add(new DisplayPiece(new ChessPosition(7,2),new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN)));
-        pieces.add(new DisplayPiece(new ChessPosition(7,3),new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN)));
-        pieces.add(new DisplayPiece(new ChessPosition(7,4),new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN)));
-        pieces.add(new DisplayPiece(new ChessPosition(7,5),new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN)));
-        pieces.add(new DisplayPiece(new ChessPosition(7,6),new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN)));
-        pieces.add(new DisplayPiece(new ChessPosition(7,7),new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN)));
-        pieces.add(new DisplayPiece(new ChessPosition(7,8),new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN)));
-
-        pieces.add(new DisplayPiece(new ChessPosition(8,1),new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK)));
-        pieces.add(new DisplayPiece(new ChessPosition(8,2),new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT)));
-        pieces.add(new DisplayPiece(new ChessPosition(8,3),new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP)));
-        pieces.add(new DisplayPiece(new ChessPosition(8,4),new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN)));
-        pieces.add(new DisplayPiece(new ChessPosition(8,5),new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING)));
-        pieces.add(new DisplayPiece(new ChessPosition(8,6),new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP)));
-        pieces.add(new DisplayPiece(new ChessPosition(8,7),new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT)));
-        pieces.add(new DisplayPiece(new ChessPosition(8,8),new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK)));
-        this.board = new DisplayBoard(pieces);*/
         this.chessBoard = new ChessBoard();
         chessBoard.resetBoard();
     }
@@ -77,14 +40,14 @@ public class DrawBoard {
     }
 
     public void drawObserverView(PrintStream out) {
-        drawChessBoard(out, "w");
+        drawChessBoard(out, "white");
 
         out.print(SET_BG_COLOR_BLACK);
         out.print(EMPTY.repeat(10));
         out.print(RESET_BG_COLOR);
         out.print('\n');
 
-        drawChessBoard(out, "b");
+        drawChessBoard(out, "black");
     }
 
     @Override
