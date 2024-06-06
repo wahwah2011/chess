@@ -2,6 +2,7 @@ package ui.chessboardDisplay;
 
 import chess.ChessBoard;
 import chess.ChessPiece;
+import chess.ChessPosition;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -123,12 +124,21 @@ public class DrawBoard {
     }
 
     private void drawSquare(PrintStream out, int row, int col) {
+        ChessPosition pos = new ChessPosition(row + 1,col + 1);
+        String piece = "   ";
         if (isWhite(row,col)) {
             out.print(SET_BG_COLOR_WHITE);
+            out.print(SET_TEXT_COLOR_BLACK);
         }
-        else out.print(SET_BG_COLOR_BLACK);
+        else  {
+            out.print(SET_BG_COLOR_BLACK);
+            out.print(SET_TEXT_COLOR_WHITE);
+        }
 
-        out.print("[" + col + "]");
+        if (chessBoard.hasPiece(pos)) {
+            piece = pieceToText(pos);
+        }
+        out.print(piece);
     }
 
     private void drawPlayer(PrintStream out) {
@@ -141,6 +151,31 @@ public class DrawBoard {
 
     private boolean isWhite(int row, int col) {
         return (row % 2 == col % 2);
+    }
+
+    private String pieceToText(ChessPosition pos) {
+        ChessPiece currPiece = chessBoard.getPiece(pos);
+        ChessPiece.PieceType type = currPiece.getPieceType();
+
+        if (type.equals(ChessPiece.PieceType.ROOK)) {
+            return ROOK;
+        }
+        else if (type.equals(ChessPiece.PieceType.KNIGHT)) {
+            return KNIGHT;
+        }
+        else if (type.equals(ChessPiece.PieceType.BISHOP)) {
+            return BISHOP;
+        }
+        else  if (type.equals(ChessPiece.PieceType.KING)) {
+            return KING;
+        }
+        else if (type.equals(ChessPiece.PieceType.QUEEN)) {
+            return QUEEN;
+        }
+        else if (type.equals(ChessPiece.PieceType.PAWN)) {
+            return PAWN;
+        }
+        else return null;
     }
 
     @Override
