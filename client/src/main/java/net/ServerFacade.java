@@ -33,7 +33,9 @@ public class ServerFacade {
         return loginResponse;
     }
 
-    public AuthData logout(AuthData auth) { return null;}
+    public void logout(String authToken) throws IOException {
+        String response = communicator.doDelete(urlString,SESSION_PATH,authToken);
+    }
 
     public GameList listGames(AuthData authorization) {return null;}
 
@@ -41,6 +43,13 @@ public class ServerFacade {
 
     public AuthData joinGame(AuthData authorization, JoinRequest joinRequest) { return null;}
 
-    public ClearResponse clear() { return null;}
+    public void clear() throws IOException {
+        String response = communicator.doDelete(urlString, DB_PATH,null);
+    }
+
+    private String serializer(Object o) {
+        Gson serializer = new Gson();
+        return serializer.toJson(o);
+    }
 
 }

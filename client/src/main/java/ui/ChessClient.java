@@ -17,7 +17,7 @@ public class ChessClient {
     private final ServerFacade serverFacade = new ServerFacade();
     //private String userTeam; for keeping track of team in printing board, making moves?
 
-    public void run() {
+    public void run() throws IOException {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             if (!isLoggedIn()) {
@@ -28,7 +28,7 @@ public class ChessClient {
         }
     }
 
-    private void preLoginUI(Scanner scanner) {
+    private void preLoginUI(Scanner scanner) throws IOException {
         System.out.println("[Logged out] Commands: Help, Quit, Login, Register");
         System.out.print("Please enter a command >>> ");
         String command = scanner.nextLine().trim().toLowerCase();
@@ -99,20 +99,6 @@ public class ChessClient {
         System.out.println("Observe Game - Observes a game.");
     }
 
-    private void login(Scanner scanner) {
-        AuthData auth = null;
-        System.out.print("Enter username: ");
-        String username = scanner.nextLine().trim();
-        System.out.print("Enter password: ");
-        String password = scanner.nextLine().trim();
-        try {
-            auth = serverFacade.login(username,password);
-        } catch (IOException e) {
-            System.out.println(e);
-        }
-        setAuth(auth);
-    }
-
     private void register(Scanner scanner) {
         AuthData auth = null;
         System.out.print("Enter username: ");
@@ -123,16 +109,37 @@ public class ChessClient {
         String email = scanner.nextLine().trim();
         try {
             auth = serverFacade.registerFacade(username,password,email);
+            authMessage(auth);
+            setAuth(auth);
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println(e + "; Unable to register.");
         }
-        setAuth(auth);
+    }
+
+    private void login(Scanner scanner) {
+        AuthData auth = null;
+        System.out.print("Enter username: ");
+        String username = scanner.nextLine().trim();
+        System.out.print("Enter password: ");
+        String password = scanner.nextLine().trim();
+        try {
+            auth = serverFacade.login(username,password);
+            authMessage(auth);
+            setAuth(auth);
+        } catch (IOException e) {
+            System.out.println(e + "; Unable to login.");
+        }
     }
 
     private void logout() {
-        isLoggedIn = false;
-        authToken = null;
-        System.out.println("Successfully logged out.");
+        try {
+            serverFacade.logout(this.authToken);
+            System.out.println("Successfully logged out.");
+            isLoggedIn = false;
+            authToken = null;
+        } catch (IOException e) {
+            System.out.println("Unable to log out.");
+        }
     }
 
     private void createGame(Scanner scanner) {
@@ -187,6 +194,12 @@ public class ChessClient {
         if (this.authToken != null) {
             isLoggedIn = true;
             System.out.println("Successfully logged in");
+        }
+    }
+
+    private void authMessage(AuthData auth) {
+        if (auth.message() != null) {
+            System.out.println(auth.message());
         }
     }
 }
