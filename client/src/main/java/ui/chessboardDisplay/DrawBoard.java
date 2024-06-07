@@ -20,9 +20,8 @@ public class DrawBoard {
     public static void main(String[] args) {
         DrawBoard drawBoard = new DrawBoard();
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-        out.println(ERASE_LINE);
-        drawBoard.drawObserverView(out);
 
+        drawBoard.drawObserverView(out);
     }
 
     public DrawBoard() {

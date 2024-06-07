@@ -1,7 +1,10 @@
 package ui;
 
+import model.AuthData;
+import net.ServerFacade;
 import ui.chessboardDisplay.DrawBoard;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
@@ -11,12 +14,13 @@ import static ui.EscapeSequences.*;
 public class ChessClient {
     private boolean isLoggedIn = false;
     private String authToken = null;
+    private final ServerFacade serverFacade = new ServerFacade();
     //private String userTeam; for keeping track of team in printing board, making moves?
 
     public void run() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            if (!isLoggedIn) {
+            if (!isLoggedIn()) {
                 preLoginUI(scanner);
             } else {
                 postLoginUI(scanner);
@@ -96,26 +100,33 @@ public class ChessClient {
     }
 
     private void login(Scanner scanner) {
+        AuthData auth = null;
         System.out.print("Enter username: ");
         String username = scanner.nextLine().trim();
         System.out.print("Enter password: ");
         String password = scanner.nextLine().trim();
-        //
-        isLoggedIn = true;
-        this.authToken = "placeHolderAuth";
-        System.out.println("Successfully logged in as " + username);
+        try {
+            auth = serverFacade.login(username,password);
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+        setAuth(auth);
     }
 
     private void register(Scanner scanner) {
+        AuthData auth = null;
         System.out.print("Enter username: ");
         String username = scanner.nextLine().trim();
         System.out.print("Enter password: ");
         String password = scanner.nextLine().trim();
         System.out.print("Enter email: ");
         String email = scanner.nextLine().trim();
-        isLoggedIn = true;
-        this.authToken = "placeHolderAuth";
-        System.out.println("Successfully registered and logged in as " + username);
+        try {
+            auth = serverFacade.registerFacade(username,password,email);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        setAuth(auth);
     }
 
     private void logout() {
@@ -165,5 +176,17 @@ public class ChessClient {
         DrawBoard board = new DrawBoard();
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         board.drawObserverView(out);
+    }
+
+    private boolean isLoggedIn() {
+        return this.isLoggedIn && this.authToken != null;
+    }
+
+    private void setAuth(AuthData auth) {
+        this.authToken = auth.authToken();
+        if (this.authToken != null) {
+            isLoggedIn = true;
+            System.out.println("Successfully logged in");
+        }
     }
 }
