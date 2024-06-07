@@ -1,13 +1,14 @@
 package ui;
 
-import model.AuthData;
-import model.GameData;
+import chess.ChessGame;
+import model.*;
 import net.ServerFacade;
 import ui.chessboardDisplay.DrawBoard;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -135,7 +136,7 @@ public class ChessClient {
     private void logout() {
         try {
             serverFacade.logout(this.authToken);
-            System.out.println("Successfully logged out.");
+            System.out.println("Successfully logged out.\n");
             isLoggedIn = false;
             authToken = null;
         } catch (IOException e) {
@@ -149,19 +150,29 @@ public class ChessClient {
         String gameName = scanner.nextLine().trim();
         try {
             createdGame = serverFacade.createGame(this.authToken, gameName);
-            System.out.println("Game \"" + createdGame.gameName() + "\" created successfully.");
+            System.out.println("Game \"" + createdGame.gameName() + "\" created successfully.\n");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     private void listGames() {
-
+        GameList games = null;
+        try {
+            games = serverFacade.listGames(this.authToken);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("Current games:");
+        displayGames(games);
     }
 
     private void playGame(Scanner scanner) {
+        AuthData response = null;
+        String teamColor = null;
+        ChessGame.TeamColor color = null;
         Integer gameNumber = null;
-        while(gameNumber == null) {
+        while (gameNumber == null) {
             System.out.print("Enter game number: ");
             try {
                 gameNumber = Integer.parseInt(scanner.nextLine().trim());
@@ -169,11 +180,26 @@ public class ChessClient {
                 System.out.println("Please enter a string value!\n");
             }
         }
-        System.out.print("Enter team color (white/black): ");
-        String teamColor = scanner.nextLine().trim().toLowerCase();
-        System.out.println("Joined game successfully.");
-        DrawBoard board = new DrawBoard();
-        board.drawChessBoard(new PrintStream(System.out, true, StandardCharsets.UTF_8), teamColor);
+        while(color == null) {
+            System.out.print("Enter team color (white/black): ");
+            teamColor = scanner.nextLine().trim().toLowerCase();
+            if (teamColor.equals("white")) {
+                color = ChessGame.TeamColor.WHITE;
+            } else if (teamColor.equals("black")) {
+                color = ChessGame.TeamColor.BLACK;
+            } else System.out.println("Please enter a valid color!\n");
+        }
+        try {
+            response = serverFacade.joinGame(this.authToken,color,gameNumber);
+            if (response.message() != null) {
+                System.out.println("Joined game successfully.");
+                DrawBoard board = new DrawBoard();
+                board.drawChessBoard(new PrintStream(System.out, true, StandardCharsets.UTF_8), teamColor);
+            }
+            else authMessage(response);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void observeGame(Scanner scanner) {
@@ -200,13 +226,24 @@ public class ChessClient {
         this.authToken = auth.authToken();
         if (this.authToken != null) {
             isLoggedIn = true;
-            System.out.println("Successfully logged in");
+            System.out.println("Successfully logged in.\n");
         }
     }
 
     private void authMessage(AuthData auth) {
         if (auth.message() != null) {
-            System.out.println(auth.message());
+            System.out.println(auth.message() + "\n");
         }
+    }
+
+    //come back to this; display games available to play one by one
+    public void displayGames(GameList gameList) {
+        if (!gameList.games().isEmpty()) {
+            for (GameData game : gameList.games()) {
+                System.out.println("Game: \"" + game.gameName() + "\", GameID = " + game.gameID());
+            }
+            System.out.println();
+        }
+        else System.out.println("Currently no games in session. Create a new game if you would like to play.\n");
     }
 }
