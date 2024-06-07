@@ -6,7 +6,7 @@ import java.io.*;
 import java.net.*;
 public class ClientCommunicator {
 
-    public String doPost(String baseURL, String endpointPath, String jsonInputString) throws IOException {
+    public String doPost(String baseURL, String endpointPath, String jsonInputString, String authToken) throws IOException {
         String urlString = baseURL + endpointPath;
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -14,6 +14,7 @@ public class ClientCommunicator {
         connection.setReadTimeout(5000);
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
+        connection.setRequestProperty("authorization", authToken);
 
         connection.connect();
         System.out.println("POST connected");
@@ -61,7 +62,6 @@ public class ClientCommunicator {
         connection.setRequestMethod("DELETE");
         connection.setDoOutput(false); // Typically DELETE requests do not have a body
         connection.setRequestProperty("authorization", authToken);
-        connection.setRequestProperty("Accept", "application/json");
 
         // Connect to the server
         connection.connect();
@@ -91,5 +91,7 @@ public class ClientCommunicator {
         System.out.println("response: " + response.toString());
         return response.toString();
     }
+
+
 
 }

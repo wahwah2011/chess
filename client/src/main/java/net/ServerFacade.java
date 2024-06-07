@@ -19,7 +19,7 @@ public class ServerFacade {
         UserData registerRequest = new UserData(username,password,email);
         Gson serializer = new Gson();
         String json = serializer.toJson(registerRequest);
-        String response = communicator.doPost(urlString,USER_PATH,json);
+        String response = communicator.doPost(urlString,USER_PATH,json,null);
         AuthData registerResponse = serializer.fromJson(response, AuthData.class);
         return registerResponse;
     }
@@ -28,7 +28,7 @@ public class ServerFacade {
         UserData loginRequest = new UserData(username, password, null);
         Gson serializer = new Gson();
         String json = serializer.toJson(loginRequest);
-        String response = communicator.doPost(urlString,SESSION_PATH,json);
+        String response = communicator.doPost(urlString,SESSION_PATH,json, null);
         AuthData loginResponse = serializer.fromJson(response, AuthData.class);
         return loginResponse;
     }
@@ -39,7 +39,14 @@ public class ServerFacade {
 
     public GameList listGames(AuthData authorization) {return null;}
 
-    public GameData createGame(AuthData authorization, GameData gameData) {return null;}
+    public GameData createGame(String authToken, String gameName) throws IOException {
+        GameData createGameRequest = new GameData(null,null,null,gameName,null,null);
+        Gson serializer = new Gson();
+        String json = serializer.toJson(createGameRequest);
+        String response = communicator.doPost(urlString,GAME_PATH,json,authToken);
+        GameData createGameResponse = serializer.fromJson(response,GameData.class);
+        return createGameResponse;
+    }
 
     public AuthData joinGame(AuthData authorization, JoinRequest joinRequest) { return null;}
 

@@ -1,6 +1,7 @@
 package ui;
 
 import model.AuthData;
+import model.GameData;
 import net.ServerFacade;
 import ui.chessboardDisplay.DrawBoard;
 
@@ -143,9 +144,15 @@ public class ChessClient {
     }
 
     private void createGame(Scanner scanner) {
+        GameData createdGame = null;
         System.out.print("Enter game name: ");
         String gameName = scanner.nextLine().trim();
-        System.out.println("Game created successfully.");
+        try {
+            createdGame = serverFacade.createGame(this.authToken, gameName);
+            System.out.println("Game \"" + createdGame.gameName() + "\" created successfully.");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void listGames() {
