@@ -8,6 +8,7 @@ import ui.chessboard.DrawBoard;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ChessClient {
@@ -52,7 +53,7 @@ public class ChessClient {
                 register(scanner);
                 break;
             default:
-                System.out.println("Invalid command. Type 'Help' to see available commands.");
+                System.out.println("Invalid command. Type 'Help' to see available commands.\n");
         }
     }
 
@@ -90,7 +91,7 @@ public class ChessClient {
         System.out.println("Help - Displays this help text.");
         System.out.println("Quit - Exits the program.");
         System.out.println("Login - Prompts for login information.");
-        System.out.println("Register - Prompts for registration information.");
+        System.out.println("Register - Prompts for registration information.\n");
     }
 
     private void showPostLoginHelp() {
@@ -100,7 +101,7 @@ public class ChessClient {
         System.out.println("Create Game - Creates a new game.");
         System.out.println("List Games - Lists all available games.");
         System.out.println("Play Game - Joins a game as a player.");
-        System.out.println("Observe Game - Observes a game.");
+        System.out.println("Observe Game - Observes a game.\n");
     }
 
     private void register(Scanner scanner) {
@@ -158,15 +159,18 @@ public class ChessClient {
         }
     }
 
-    private void listGames() {
-        GameList games = null;
+    private ArrayList<GameData> listGames() {
+        GameList gameData = null;
+        ArrayList<GameData> games = null;
         try {
-            games = serverFacade.listGames(this.authToken);
+            gameData = serverFacade.listGames(this.authToken);
+            games = gameData.games();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         System.out.println("Current games:");
         displayGames(games);
+        return games;
     }
 
     private void playGame(Scanner scanner) {
@@ -174,13 +178,20 @@ public class ChessClient {
         String teamColor = null;
         ChessGame.TeamColor color = null;
         Integer gameNumber = null;
-        listGames();
+        String gameName = null;
+        ArrayList<GameData> games = null;
+        games = listGames();
+
         while (gameNumber == null) {
             System.out.print("Enter game number: ");
             try {
-                gameNumber = Integer.parseInt(scanner.nextLine().trim());
+                int index = Integer.parseInt(scanner.nextLine().trim());
+                gameNumber = assignGameID(index,games);
+                if (gameNumber != null) {
+                    gameName = games.get(index).gameName();
+                }
             } catch (Exception e) {
-                System.out.println("Please enter a string value!\n");
+                System.out.println("Please enter an integer value!");
             }
         }
         while(color == null) {
@@ -195,7 +206,7 @@ public class ChessClient {
         try {
             response = serverFacade.joinGame(this.authToken,color,gameNumber);
             if (response.message() == null) {
-                System.out.println("Joined game successfully.");
+                System.out.println("Joined game " + gameName + " successfully.");
                 DrawBoard board = new DrawBoard();
                 board.drawChessBoard(new PrintStream(System.out, true, StandardCharsets.UTF_8), teamColor);
             }
@@ -241,15 +252,31 @@ public class ChessClient {
     }
 
     //come back to this; display games available to play one by one
-    public void displayGames(GameList gameList) {
-        if (!gameList.games().isEmpty()) {
-            int counter = 1;
-            for (GameData game : gameList.games()) {
-                System.out.println(counter + ") GameID = " + game.gameID() + ", Name: \"" + game.gameName() + "\"");
-                counter++;
+    public void displayGames(ArrayList<GameData> games) {
+        if (!games.isEmpty()) {
+            for (int i = 0; i < games.size(); i++) {
+                GameData game = games.get(i);
+                System.out.print(i + ") " + "Name: \"" + game.gameName() + "\"\n");
+                if (game.whiteUsername() != null) {
+                    System.out.print("White player: " + game.whiteUsername() + "\n");
+                }
+                else System.out.print("White player: None \n");
+                if (game.blackUsername() != null) {
+                    System.out.print("Black player: " + game.blackUsername() + "\n");
+                }
+                else System.out.print("Black player: None \n");
+                System.out.print('\n');
             }
-            System.out.println();
         }
         else System.out.println("Currently no games in session. Create a new game if you would like to play.\n");
+    }
+
+    private Integer assignGameID(int index, ArrayList<GameData> games) {
+        if (index < 0 || index >= games.size()) {
+            System.out.println("Please enter a valid index!");
+            return null;
+        } else {
+            return games.get(index).gameID();
+        }
     }
 }
