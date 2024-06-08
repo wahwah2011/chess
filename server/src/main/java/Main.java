@@ -11,7 +11,7 @@ public class Main {
         DatabaseManager db = new DatabaseManager();
 
         Server myServer = new Server();
-        myServer.run(8080);
+        myServer.run(0);
 
     }
 }

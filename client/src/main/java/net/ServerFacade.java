@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class ServerFacade {
 
-    private String urlString = "http://localhost:8080";
+    private String urlString = "http://localhost:0";
     private ClientCommunicator communicator = new ClientCommunicator();
 
     public static String USER_PATH = "/user";
