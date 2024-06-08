@@ -172,6 +172,7 @@ public class ChessClient {
         String teamColor = null;
         ChessGame.TeamColor color = null;
         Integer gameNumber = null;
+        listGames();
         while (gameNumber == null) {
             System.out.print("Enter game number: ");
             try {
@@ -191,7 +192,7 @@ public class ChessClient {
         }
         try {
             response = serverFacade.joinGame(this.authToken,color,gameNumber);
-            if (response.message() != null) {
+            if (response.message() == null) {
                 System.out.println("Joined game successfully.");
                 DrawBoard board = new DrawBoard();
                 board.drawChessBoard(new PrintStream(System.out, true, StandardCharsets.UTF_8), teamColor);
@@ -204,6 +205,7 @@ public class ChessClient {
 
     private void observeGame(Scanner scanner) {
         Integer gameNumber = null;
+        listGames();
         while(gameNumber == null) {
             System.out.print("Enter game number: ");
             try {
@@ -239,8 +241,10 @@ public class ChessClient {
     //come back to this; display games available to play one by one
     public void displayGames(GameList gameList) {
         if (!gameList.games().isEmpty()) {
+            int counter = 1;
             for (GameData game : gameList.games()) {
-                System.out.println("Game: \"" + game.gameName() + "\", GameID = " + game.gameID());
+                System.out.println(counter + ") GameID = " + game.gameID() + ", Name: \"" + game.gameName() + "\"");
+                counter++;
             }
             System.out.println();
         }

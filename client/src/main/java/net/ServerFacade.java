@@ -34,8 +34,11 @@ public class ServerFacade {
         return loginResponse;
     }
 
-    public void logout(String authToken) throws IOException {
-        communicator.doDelete(urlString,SESSION_PATH,authToken);
+    public AuthData logout(String authToken) throws IOException {
+        String result = communicator.doDelete(urlString,SESSION_PATH,authToken);
+        Gson serializer = new Gson();
+        AuthData logoutResult = serializer.fromJson(result,AuthData.class);
+        return logoutResult;
     }
 
     public GameList listGames(String authToken) throws IOException {

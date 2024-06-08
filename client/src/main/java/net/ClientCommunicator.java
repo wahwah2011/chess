@@ -17,9 +17,7 @@ public class ClientCommunicator {
         connection.setRequestProperty("authorization", authToken);
 
         connection.connect();
-        System.out.println("POST connected");
 
-        // Write the JSON input string to the output stream
         try (OutputStream os = connection.getOutputStream()) {
             byte[] input = jsonInputString.getBytes("utf-8");
             os.write(input, 0, input.length);
@@ -28,10 +26,8 @@ public class ClientCommunicator {
         int status = connection.getResponseCode();
         InputStream responseStream;
 
-        // Check if the response code is HTTP OK
         if (status == HttpURLConnection.HTTP_OK) {
             responseStream = connection.getInputStream();
-            //System.out.println("status == HTTP_OK\n");
         } else {
             responseStream = connection.getErrorStream();
         }
@@ -43,13 +39,10 @@ public class ClientCommunicator {
             while ((responseLine = br.readLine()) != null) {
                 response.append(responseLine.trim());
             }
-            //System.out.println("Response has been read\n");
         } finally {
             connection.disconnect();
         }
 
-        // Return the response as a JSON string
-        //System.out.println("Response: \n" + response.toString());
         return response.toString();
     }
 
@@ -60,24 +53,21 @@ public class ClientCommunicator {
 
         connection.setReadTimeout(5000);
         connection.setRequestMethod("DELETE");
-        connection.setDoOutput(false); // Typically DELETE requests do not have a body
+        connection.setDoOutput(false);
         connection.setRequestProperty("authorization", authToken);
 
-        // Connect to the server
         connection.connect();
-        System.out.println("DELETE connected");
+        //System.out.println("DELETE connected");
 
         int status = connection.getResponseCode();
         InputStream responseStream;
 
-        // Check if the response code is HTTP OK
         if (status == HttpURLConnection.HTTP_OK) {
             responseStream = connection.getInputStream();
         } else {
             responseStream = connection.getErrorStream();
         }
 
-        // Read the response
         StringBuilder response = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(responseStream, "utf-8"))) {
             String responseLine;
@@ -88,8 +78,6 @@ public class ClientCommunicator {
             connection.disconnect();
         }
 
-        // Return the response as a JSON string
-        //System.out.println("response: " + response.toString());
         return response.toString();
     }
 
@@ -102,21 +90,18 @@ public class ClientCommunicator {
         connection.setRequestMethod("GET");
         connection.setRequestProperty("authorization", authToken);
 
-        // Connect to the server
         connection.connect();
-        System.out.println("GET connected");
+        //System.out.println("GET connected");
 
         int status = connection.getResponseCode();
         InputStream responseStream;
 
-        // Check if the response code is HTTP OK
         if (status == HttpURLConnection.HTTP_OK) {
             responseStream = connection.getInputStream();
         } else {
             responseStream = connection.getErrorStream();
         }
 
-        // Read the response
         StringBuilder response = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(responseStream, "utf-8"))) {
             String responseLine;
@@ -127,8 +112,6 @@ public class ClientCommunicator {
             connection.disconnect();
         }
 
-        // Return the response as a JSON string
-        //System.out.println("Response: " + response.toString());
         return response.toString();
     }
 
@@ -143,7 +126,7 @@ public class ClientCommunicator {
         connection.setRequestProperty("authorization", authToken);
 
         connection.connect();
-        System.out.println("PUT connected");
+        //System.out.println("PUT connected");
 
         try (OutputStream os = connection.getOutputStream()) {
             byte[] input = jsonInputString.getBytes("utf-8");
@@ -169,7 +152,7 @@ public class ClientCommunicator {
             connection.disconnect();
         }
 
-        System.out.println("PUT Response: " + response.toString());
+        System.out.println("Response : " + response.toString());
         return response.toString();
     }
 }
