@@ -1,4 +1,4 @@
-package ui.chessboardDisplay;
+package ui.chessboard;
 
 import java.util.ArrayList;
 

@@ -8,13 +8,19 @@ import java.io.IOException;
 
 public class ServerFacade {
 
-    private String urlString = "http://localhost:0";
+    private int port;
+    private String urlString;
     private ClientCommunicator communicator = new ClientCommunicator();
 
-    public static String USER_PATH = "/user";
-    public static String SESSION_PATH = "/session";
-    public static String GAME_PATH = "/game";
-    public static String DB_PATH = "/db";
+    public static final String USER_PATH = "/user";
+    public static final String SESSION_PATH = "/session";
+    public static final String GAME_PATH = "/game";
+    public static final String DB_PATH = "/db";
+
+    public ServerFacade(int port) {
+        this.port = port;
+        this.urlString = "http://localhost:" + port; // Initialize urlString here
+    }
 
     public AuthData registerFacade(String username, String password, String email) throws IOException {
         UserData registerRequest = new UserData(username,password,email);
@@ -69,15 +75,4 @@ public class ServerFacade {
     public void clear() throws IOException {
         communicator.doDelete(urlString, DB_PATH,null);
     }
-
-    private String serializer(Object o) {
-        Gson serializer = new Gson();
-        return serializer.toJson(o);
-    }
-
-    private Object deserializer(String json, Object o) {
-        Gson serializer = new Gson();
-        return serializer.fromJson(json, o.getClass());
-    }
-
 }

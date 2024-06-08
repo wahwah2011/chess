@@ -1,4 +1,4 @@
-package ui.chessboardDisplay;
+package ui.chessboard;
 
 import chess.ChessBoard;
 import chess.ChessGame;

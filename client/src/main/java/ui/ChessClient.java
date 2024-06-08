@@ -3,22 +3,24 @@ package ui;
 import chess.ChessGame;
 import model.*;
 import net.ServerFacade;
-import ui.chessboardDisplay.DrawBoard;
+import ui.chessboard.DrawBoard;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import java.util.Scanner;
 
-import static ui.EscapeSequences.*;
-
 public class ChessClient {
+    private int port;
     private boolean isLoggedIn = false;
     private String authToken = null;
-    private final ServerFacade serverFacade = new ServerFacade();
+    private ServerFacade serverFacade;
     //private String userTeam; for keeping track of team in printing board, making moves?
 
+    public ChessClient(int port) {
+        this.port = port;
+        serverFacade = new ServerFacade(port);
+    }
     public void run() throws IOException {
         Scanner scanner = new Scanner(System.in);
         while (true) {

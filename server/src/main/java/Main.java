@@ -8,10 +8,7 @@ public class Main {
         System.out.println("♕ 240 Chess Server: " + piece);
 
         //call createDatabase from database manager in here?
-        DatabaseManager db = new DatabaseManager();
-
         Server myServer = new Server();
-        myServer.run(0);
-
+        myServer.run(8080);
     }
 }
