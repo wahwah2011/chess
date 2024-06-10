@@ -1,33 +1,63 @@
-package ui.chessboard;
+ package ui.chessboard;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 import static ui.EscapeSequences.*;
 
 public class DrawBoard {
-    private ChessBoard chessBoard;
+    private ChessBoard chessBoard; //8x8 2D array which contains ChessPiece objects
+    private boolean[][] validMoves = new boolean[8][8];
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private static final int SQUARE_SIZE_IN_CHARS = 3;
 
     public static void main(String[] args) {
         DrawBoard drawBoard = new DrawBoard();
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-        drawBoard.drawObserverView(out);
+
+        drawBoard.drawValidMoveBoard(new ChessPosition(8,7), out, "black");
     }
 
     public DrawBoard() {
         this.chessBoard = new ChessBoard();
-        chessBoard.resetBoard();
+        /*chessBoard.addPiece(new ChessPosition(5,5), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING));
+        chessBoard.addPiece(new ChessPosition(6,6), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
+        chessBoard.addPiece(new ChessPosition(1,1), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN));
+        chessBoard.addPiece(new ChessPosition(1,8), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN));
+        chessBoard.addPiece(new ChessPosition(8,1), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
+        chessBoard.addPiece(new ChessPosition(8,8), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));*/
+        this.chessBoard.resetBoard();
     }
 
     public DrawBoard(ChessBoard chessBoard) {
         this.chessBoard = chessBoard;
+    }
+
+    public void drawValidMoveBoard(ChessPosition position, PrintStream out, String playerColor) {
+        if (containsPiece(position)) {
+            if (sameColor(position, playerColor)) {
+                validMoves = calculateValidMoves(position);
+                drawChessBoard(out, playerColor);
+                resetValidMoves(validMoves);
+            }
+            else out.println("That is not your piece, and therefore shouldn't concern you.");
+        }
+        else out.println("That is not a valid piece position.");
+    }
+
+    public boolean[][] calculateValidMoves(ChessPosition position) {
+        boolean[][] trueMoves = new boolean[8][8];
+        ChessPiece curPiece = chessBoard.getPiece(position);
+        ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>) curPiece.pieceMoves(chessBoard,position);
+        for (ChessMove curMove : validMoves) {
+            int row = curMove.getEndPosition().getRow();
+            int col = curMove.getEndPosition().getColumn();
+            trueMoves[row - 1][col - 1] = true;
+        }
+        return trueMoves;
     }
 
     public void drawChessBoard(PrintStream out, String playerColor) {
@@ -45,13 +75,6 @@ public class DrawBoard {
         out.print('\n');
 
         drawChessBoard(out, "black");
-    }
-
-    @Override
-    public String toString() {
-        return "DrawBoard{" +
-                "chessBoard=" + chessBoard.toString() +
-                '}';
     }
 
     private void drawHeaders(PrintStream out, String playerColor) {
@@ -121,7 +144,13 @@ public class DrawBoard {
     private void drawSquare(PrintStream out, int row, int col) {
         ChessPosition pos = new ChessPosition(row, col + 1);
 
-        if (isWhite(row, col)) {
+        if (isValidMove(pos)) {
+            if (isWhite(row, col)){
+                out.print(SET_BG_COLOR_GREEN);
+            }
+            else out.print(SET_BG_COLOR_DARK_GREEN);
+        }
+        else if (isWhite(row, col)) {
             out.print(SET_BG_COLOR_WHITE);
         } else {
             out.print(SET_BG_COLOR_BLACK);
@@ -152,22 +181,15 @@ public class DrawBoard {
         ChessPiece currPiece = chessBoard.getPiece(pos);
         ChessPiece.PieceType type = currPiece.getPieceType();
 
-        switch (type) {
-            case ROOK:
-                return ROOK;
-            case KNIGHT:
-                return KNIGHT;
-            case BISHOP:
-                return BISHOP;
-            case KING:
-                return KING;
-            case QUEEN:
-                return QUEEN;
-            case PAWN:
-                return PAWN;
-            default:
-                return "   ";
-        }
+        return switch (type) {
+            case ROOK -> ROOK;
+            case KNIGHT -> KNIGHT;
+            case BISHOP -> BISHOP;
+            case KING -> KING;
+            case QUEEN -> QUEEN;
+            case PAWN -> PAWN;
+            default -> "   ";
+        };
     }
 
     private String teamTextColor(ChessPosition pos) {
@@ -179,5 +201,34 @@ public class DrawBoard {
         } else {
             return SET_TEXT_COLOR_BLUE;
         }
+    }
+
+    private void resetValidMoves(boolean[][] validMoves) {
+        for (int i = 0; i < validMoves.length; i++) {
+            for (int j = 0; j < validMoves[i].length; j++) {
+                validMoves[i][j] = false;
+            }
+        }
+    }
+
+    private boolean isValidMove(ChessPosition pos) {
+        int row = pos.getRow() - 1;
+        int col = pos.getColumn() -1;
+        return validMoves[row][col];
+    }
+
+    private boolean containsPiece(ChessPosition pos) {
+        return chessBoard.hasPiece(pos);
+    }
+
+    private boolean sameColor(ChessPosition position, String playerColor) {
+        ChessPiece curPiece = chessBoard.getPiece(position);
+        ChessGame.TeamColor color;
+        if (playerColor == "white") {
+            color = ChessGame.TeamColor.WHITE;
+        }
+        else color = ChessGame.TeamColor.BLACK;
+
+        return curPiece.getTeamColor() == color;
     }
 }

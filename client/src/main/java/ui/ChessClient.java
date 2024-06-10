@@ -16,12 +16,13 @@ public class ChessClient {
     private boolean isLoggedIn = false;
     private String authToken = null;
     private ServerFacade serverFacade;
-    //private String userTeam; for keeping track of team in printing board, making moves?
+    private String teamColor = null;
 
     public ChessClient(int port) {
         this.port = port;
         serverFacade = new ServerFacade(port);
     }
+
     public void run() throws IOException {
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -175,7 +176,6 @@ public class ChessClient {
 
     private void playGame(Scanner scanner) {
         AuthData response = null;
-        String teamColor = null;
         ChessGame.TeamColor color = null;
         Integer gameNumber = null;
         String gameName = null;
@@ -196,19 +196,22 @@ public class ChessClient {
         }
         while(color == null) {
             System.out.print("Enter team color (white/black): ");
-            teamColor = scanner.nextLine().trim().toLowerCase();
-            if (teamColor.equals("white")) {
+            this.teamColor = scanner.nextLine().trim().toLowerCase();
+            if (this.teamColor.equals("white")) {
                 color = ChessGame.TeamColor.WHITE;
-            } else if (teamColor.equals("black")) {
+            } else if (this.teamColor.equals("black")) {
                 color = ChessGame.TeamColor.BLACK;
-            } else System.out.println("Please enter a valid color!\n");
+            } else {
+                System.out.println("Please enter a valid color!\n");
+                this.teamColor = null;
+            }
         }
         try {
             response = serverFacade.joinGame(this.authToken,color,gameNumber);
             if (response.message() == null) {
                 System.out.println("Joined game " + gameName + " successfully.");
                 DrawBoard board = new DrawBoard();
-                board.drawChessBoard(new PrintStream(System.out, true, StandardCharsets.UTF_8), teamColor);
+                board.drawChessBoard(new PrintStream(System.out, true, StandardCharsets.UTF_8), this.teamColor);
             }
             else authMessage(response);
         } catch (IOException e) {
