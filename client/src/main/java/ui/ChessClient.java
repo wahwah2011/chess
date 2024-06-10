@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessPosition;
 import model.*;
 import net.ServerFacade;
 import ui.chessboard.DrawBoard;
@@ -11,10 +12,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import static ui.EscapeSequences.SET_TEXT_COLOR_BLACK;
+import static ui.EscapeSequences.SET_TEXT_COLOR_RED;
+
 public class ChessClient {
     private int port;
     private boolean isLoggedIn = false;
+    private boolean isInGame = false;
     private String authToken = null;
+    private String gameName = null;
     private ServerFacade serverFacade;
     private String teamColor = null;
 
@@ -28,8 +34,12 @@ public class ChessClient {
         while (true) {
             if (!isLoggedIn()) {
                 preLoginUI(scanner);
-            } else {
+            }
+            else if (!isInGame) {
                 postLoginUI(scanner);
+            }
+            else {
+                gameUI(scanner);
             }
         }
     }
@@ -87,6 +97,37 @@ public class ChessClient {
         }
     }
 
+    private void gameUI(Scanner scanner) {
+        System.out.println("[In game \"" + this.gameName + "\"] Commands: Help, Redraw, Make Move, Highlight Moves, Leave, Resign");
+        System.out.print("Please enter a command >>> ");
+        String command = scanner.nextLine().trim().toLowerCase();
+        DrawBoard board = new DrawBoard();
+
+        switch (command) {
+            case "help":
+                showGameHelp();
+                break;
+            case "redraw":
+                redrawBoard();
+                break;
+            case "make move":
+                makeMove(scanner);
+                break;
+            case "highlight moves":
+                highlightMoves(scanner);
+                break;
+            case "leave":
+                leave();
+                isInGame = false;
+                break;
+            case "resign":
+                resign(scanner);
+                break;
+            default:
+                System.out.println("Invalid command. Type 'Help' to see available commands.");
+        }
+    }
+
     private void showPreLoginHelp() {
         System.out.println("Available commands:");
         System.out.println("Help - Displays this help text.");
@@ -105,6 +146,16 @@ public class ChessClient {
         System.out.println("Observe Game - Observes a game.\n");
     }
 
+    private void showGameHelp() {
+        System.out.println("Available commands:");
+        System.out.println("Help - Displays this help text.");
+        System.out.println("Redraw - Redraws current board.");
+        System.out.println("Make Move - Make legal piece move on your turn.");
+        System.out.println("Highlight Moves - Highlights all available moves for a specified piece.");
+        System.out.println("Leave - Leave current game.");
+        System.out.println("Resign - Forfeit current game.\n");
+    }
+
     private void register(Scanner scanner) {
         AuthData auth = null;
         System.out.print("Enter username: ");
@@ -118,7 +169,7 @@ public class ChessClient {
             authMessage(auth);
             setAuth(auth);
         } catch (Exception e) {
-            System.out.println(e + "; Unable to register.");
+            printErrorMessage("Unable to register.");
         }
     }
 
@@ -133,7 +184,7 @@ public class ChessClient {
             authMessage(auth);
             setAuth(auth);
         } catch (IOException e) {
-            System.out.println(e + "; Unable to login.");
+            printErrorMessage("Unable to login.");
         }
     }
 
@@ -144,7 +195,7 @@ public class ChessClient {
             isLoggedIn = false;
             authToken = null;
         } catch (IOException e) {
-            System.out.println("Unable to log out.");
+            printErrorMessage("Unable to log out.");
         }
     }
 
@@ -178,7 +229,6 @@ public class ChessClient {
         AuthData response = null;
         ChessGame.TeamColor color = null;
         Integer gameNumber = null;
-        String gameName = null;
         ArrayList<GameData> games = null;
         games = listGames();
 
@@ -188,10 +238,10 @@ public class ChessClient {
                 int index = Integer.parseInt(scanner.nextLine().trim());
                 gameNumber = assignGameID(index,games);
                 if (gameNumber != null) {
-                    gameName = games.get(index).gameName();
+                    this.gameName = games.get(index).gameName();
                 }
             } catch (Exception e) {
-                System.out.println("Please enter an integer value!");
+                printErrorMessage("Please enter an existing game number!");
             }
         }
         while(color == null) {
@@ -202,14 +252,15 @@ public class ChessClient {
             } else if (this.teamColor.equals("black")) {
                 color = ChessGame.TeamColor.BLACK;
             } else {
-                System.out.println("Please enter a valid color!\n");
+                printErrorMessage("Please enter a valid color! (white/black)");
                 this.teamColor = null;
             }
         }
         try {
             response = serverFacade.joinGame(this.authToken,color,gameNumber);
             if (response.message() == null) {
-                System.out.println("Joined game " + gameName + " successfully.");
+                System.out.println("Joined game " + this.gameName + " successfully.");
+                isInGame = true;
                 DrawBoard board = new DrawBoard();
                 board.drawChessBoard(new PrintStream(System.out, true, StandardCharsets.UTF_8), this.teamColor);
             }
@@ -236,6 +287,30 @@ public class ChessClient {
         board.drawObserverView(out);
     }
 
+    private void redrawBoard() {
+        DrawBoard board = new DrawBoard();
+        board.drawChessBoard(new PrintStream(System.out, true, StandardCharsets.UTF_8), this.teamColor);
+    }
+
+    private void makeMove(Scanner scanner) {
+
+    }
+
+    private void highlightMoves(Scanner scanner) {
+        String position = getValidChessPosition();
+        ChessPosition chessPosition = convertToChessPosition(position);
+        DrawBoard drawBoard = new DrawBoard();
+        drawBoard.highlightMoveBoard(chessPosition, new PrintStream(System.out, true, StandardCharsets.UTF_8), this.teamColor);
+    }
+
+    private void leave() {
+
+    }
+
+    private void resign(Scanner scanner) {
+
+    }
+
     private boolean isLoggedIn() {
         return this.isLoggedIn && this.authToken != null;
     }
@@ -250,12 +325,11 @@ public class ChessClient {
 
     private void authMessage(AuthData auth) {
         if (auth.message() != null) {
-            System.out.println(auth.message() + "\n");
+            printErrorMessage(auth.message());
         }
     }
 
-    //come back to this; display games available to play one by one
-    public void displayGames(ArrayList<GameData> games) {
+    private void displayGames(ArrayList<GameData> games) {
         if (!games.isEmpty()) {
             for (int i = 0; i < games.size(); i++) {
                 GameData game = games.get(i);
@@ -276,10 +350,54 @@ public class ChessClient {
 
     private Integer assignGameID(int index, ArrayList<GameData> games) {
         if (index < 0 || index >= games.size()) {
-            System.out.println("Please enter a valid index!");
+            printErrorMessage("Please enter a valid index!");
             return null;
         } else {
             return games.get(index).gameID();
         }
+    }
+
+
+    private String getValidChessPosition() {
+        Scanner scanner = new Scanner(System.in);
+        String position;
+
+        while (true) {
+            System.out.println("Enter a chess position (e.g., 1a, 3d): ");
+            position = scanner.nextLine().trim().toLowerCase();
+
+            if (isValidPosition(position)) {
+                break;
+            } else {
+                printErrorMessage("Invalid position. Please enter a valid position (rows 1-8, columns a-h).");
+            }
+        }
+
+        return position;
+    }
+
+    private boolean isValidPosition(String position) {
+        if (position.length() != 2) {
+            return false;
+        }
+
+        char row = position.charAt(0);
+        char column = position.charAt(1);
+
+        return (row >= '1' && row <= '8') && (column >= 'a' && column <= 'h');
+    }
+
+    public ChessPosition convertToChessPosition(String position) {
+        int row = Character.getNumericValue(position.charAt(0));
+        int column = position.charAt(1) - 'a' + 1;
+
+        return new ChessPosition(row, column);
+    }
+
+    private void printErrorMessage(String message) {
+        System.out.print(SET_TEXT_COLOR_RED);
+        System.out.println(message);
+        System.out.print(SET_TEXT_COLOR_BLACK);
+        System.out.print("\n");
     }
 }

@@ -12,40 +12,37 @@ public class DrawBoard {
     private ChessBoard chessBoard; //8x8 2D array which contains ChessPiece objects
     private boolean[][] validMoves = new boolean[8][8];
     private static final int BOARD_SIZE_IN_SQUARES = 8;
-    private static final int SQUARE_SIZE_IN_CHARS = 3;
 
     public static void main(String[] args) {
         DrawBoard drawBoard = new DrawBoard();
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
-        drawBoard.drawValidMoveBoard(new ChessPosition(8,7), out, "black");
+        drawBoard.highlightMoveBoard(new ChessPosition(5,5), out, "white");
     }
 
     public DrawBoard() {
         this.chessBoard = new ChessBoard();
-        /*chessBoard.addPiece(new ChessPosition(5,5), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING));
-        chessBoard.addPiece(new ChessPosition(6,6), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
-        chessBoard.addPiece(new ChessPosition(1,1), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN));
-        chessBoard.addPiece(new ChessPosition(1,8), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN));
-        chessBoard.addPiece(new ChessPosition(8,1), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
-        chessBoard.addPiece(new ChessPosition(8,8), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));*/
-        this.chessBoard.resetBoard();
+        chessBoard.addPiece(new ChessPosition(5,5), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN));
     }
 
     public DrawBoard(ChessBoard chessBoard) {
         this.chessBoard = chessBoard;
     }
 
-    public void drawValidMoveBoard(ChessPosition position, PrintStream out, String playerColor) {
+    public void highlightMoveBoard(ChessPosition position, PrintStream out, String playerColor) {
         if (containsPiece(position)) {
             if (sameColor(position, playerColor)) {
                 validMoves = calculateValidMoves(position);
                 drawChessBoard(out, playerColor);
                 resetValidMoves(validMoves);
             }
-            else out.println("That is not your piece, and therefore shouldn't concern you.");
+            else {
+                printErrorMessage("That piece is not on your team, and therefore shouldn't concern you.", out);
+            }
         }
-        else out.println("That is not a valid piece position.");
+        else {
+            printErrorMessage("That is an empty position on the board", out);
+        }
     }
 
     public boolean[][] calculateValidMoves(ChessPosition position) {
@@ -223,12 +220,21 @@ public class DrawBoard {
 
     private boolean sameColor(ChessPosition position, String playerColor) {
         ChessPiece curPiece = chessBoard.getPiece(position);
-        ChessGame.TeamColor color;
-        if (playerColor == "white") {
+        ChessGame.TeamColor color = null;
+        if (playerColor.equals("white")) {
             color = ChessGame.TeamColor.WHITE;
         }
-        else color = ChessGame.TeamColor.BLACK;
+        else if (playerColor.equals("black")) {
+            color = ChessGame.TeamColor.BLACK;
+        }
 
-        return curPiece.getTeamColor() == color;
+        return curPiece.getTeamColor().equals(color);
+    }
+
+    private void printErrorMessage(String message, PrintStream out) {
+        out.print(SET_TEXT_COLOR_RED);
+        out.println(message);
+        out.print(SET_TEXT_COLOR_BLACK);
+        out.print("\n");
     }
 }
