@@ -41,22 +41,24 @@ public class WebSocketHandler {
                 case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
                 case RESIGN -> resign(session, username, (ResignCommand) command);
             }
+        } catch (DataAccessException ex) {
+            //sendMessage(session.getRemote(), new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: unauthorized"));
         } catch (Exception ex) {
             ex.printStackTrace();
-            sendMessage(session, "Error: " + ex.getMessage());
+            //sendMessage(session.getRemote(), new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + ex.getMessage()));
         }
     }
 
-    private void connect(Session session, String username, ConnectCommand command) {}
-    private void makeMove(Session session, String username, MakeMoveCommand command) {}
-    private void leaveGame(Session session, String username, LeaveGameCommand command) {}
-    private void resign(Session session, String username, ResignCommand command) {}
+    private void connect(Session session, String username, ConnectCommand command) throws DataAccessException {}
+    private void makeMove(Session session, String username, MakeMoveCommand command) throws DataAccessException {}
+    private void leaveGame(Session session, String username, LeaveGameCommand command) throws DataAccessException {}
+    private void resign(Session session, String username, ResignCommand command) throws DataAccessException {}
 
     private void saveSession(Integer gameID, Session session) {
         sessionMap.computeIfAbsent(gameID, k -> new HashSet<>()).add(session);
     }
 
-    private void broadcast(Notification notification) {}
+    private void broadcast(NotificationMessage notificationMessage) {}
 
     private String getUsername(String authToken) {
         return null;
@@ -70,8 +72,8 @@ public class WebSocketHandler {
             session.getRemote().sendString(jsonMessage);
         } catch (IOException e) {
             e.printStackTrace();
-        }
     }
+        }
 
 }
 

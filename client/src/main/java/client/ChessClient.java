@@ -1,21 +1,20 @@
-package ui;
+package client;
 
 import chess.ChessGame;
 import chess.ChessPosition;
 import model.*;
 import net.ServerFacade;
 import ui.chessboard.DrawBoard;
-
+import websocket.messages.*;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import static ui.EscapeSequences.SET_TEXT_COLOR_BLACK;
-import static ui.EscapeSequences.SET_TEXT_COLOR_RED;
+import static ui.EscapeSequences.*;
 
-public class ChessClient {
+public class ChessClient implements ServerMessageObserver {
     private int port;
     private boolean isLoggedIn = false;
     private boolean isInGame = false;
@@ -394,10 +393,34 @@ public class ChessClient {
         return new ChessPosition(row, column);
     }
 
+    @Override
+    public void notify(ServerMessage message) {
+        switch (message.getServerMessageType()) {
+            case NOTIFICATION -> printNotification(((NotificationMessage) message).getMessage());
+            case ERROR -> printErrorMessage(((ErrorMessage) message).getErrorMessage());
+            case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
+        }
+    }
+
+    public ChessGame loadGame(String game) {
+        //include code to deserialize game
+        return null;
+    }
+
+    public void printNotification(String message) {
+        System.out.print(SET_TEXT_COLOR_GREEN);
+        printMessage(message);
+    }
+
     private void printErrorMessage(String message) {
         System.out.print(SET_TEXT_COLOR_RED);
+        printMessage(message);
+    }
+
+    private void printMessage(String message) {
         System.out.println(message);
         System.out.print(SET_TEXT_COLOR_BLACK);
         System.out.print("\n");
     }
+
 }

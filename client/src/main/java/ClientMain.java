@@ -1,5 +1,5 @@
 import chess.*;
-import ui.ChessClient;
+import client.ChessClient;
 
 import java.io.IOException;
 
