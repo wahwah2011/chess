@@ -31,14 +31,9 @@ public class DrawBoard {
 
     public void highlightMoveBoard(ChessPosition position, PrintStream out, String playerColor) {
         if (containsPiece(position)) {
-            if (sameColor(position, playerColor)) {
-                validMoves = calculateValidMoves(position);
-                drawChessBoard(out, playerColor);
-                resetValidMoves(validMoves);
-            }
-            else {
-                printErrorMessage("That piece is not on your team, and therefore shouldn't concern you.", out);
-            }
+            validMoves = calculateValidMoves(position);
+            drawChessBoard(out, playerColor);
+            resetValidMoves(validMoves);
         }
         else {
             printErrorMessage("That is an empty position on the board", out);

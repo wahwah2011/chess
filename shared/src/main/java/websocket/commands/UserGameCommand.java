@@ -10,10 +10,14 @@ import java.util.Objects;
  */
 public class UserGameCommand {
 
-    public UserGameCommand(String authToken) {
-        this.authToken = authToken;
-    }
+    protected CommandType commandType;
+    private final String authToken;
+    private final Integer gameID;
 
+    public UserGameCommand(String authToken, Integer gameID) {
+        this.authToken = authToken;
+        this.gameID = gameID;
+    }
     public enum CommandType {
         CONNECT,
         MAKE_MOVE,
@@ -21,13 +25,11 @@ public class UserGameCommand {
         RESIGN
     }
 
-    protected CommandType commandType;
-
-    private final String authToken;
-
     public String getAuthString() {
         return authToken;
     }
+
+    public Integer getGameID() { return gameID; }
 
     public CommandType getCommandType() {
         return this.commandType;
