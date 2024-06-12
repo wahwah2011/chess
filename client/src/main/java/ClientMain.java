@@ -9,7 +9,12 @@ public class ClientMain {
         System.out.println("♕ 240 Chess Client: " + piece);
 
         //displays menu object
-        ChessClient client = new ChessClient(8080);
-        client.run();
+        ChessClient client = null;
+        try {
+            client = new ChessClient(8080);
+            client.run();
+        } catch (Exception e) {
+            System.out.println("Unable to connect to client");
+        }
     }
 }

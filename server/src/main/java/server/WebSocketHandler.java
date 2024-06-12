@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import dataaccess.*;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
@@ -22,17 +23,14 @@ public class WebSocketHandler {
     private final SQLAuthDAO authData = new SQLAuthDAO();
     private final SQLGameDAO gameData = new SQLGameDAO();
 
-    public static void main(String[] args) {
-        Spark.port(8080);
-        Spark.webSocket("/ws", WebSocketHandler.class);
-        Spark.get("/echo/:msg", (req, res) -> "HTTP response: " + req.params(":msg"));
-    }
-
     @OnWebSocketMessage
     public void onMessage(Session session, String msg) throws Exception {
         try {
-            Gson serializer = new Gson();
-            UserGameCommand command = serializer.fromJson(msg, UserGameCommand.class);
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(UserGameCommand.class, new UserGameCommandDeserializer())
+                    .create();
+
+            UserGameCommand command = gson.fromJson(msg, UserGameCommand.class);
 
             String username = authData.getUsername(command.getAuthString());
 
@@ -44,19 +42,20 @@ public class WebSocketHandler {
             }
         } catch (DataAccessException ex) {
             ex.printStackTrace();
-            //sendMessage(session.getRemote(), new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: unauthorized"));
+            sendRemoteMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: unauthorized"));
         } catch (Exception ex) {
             ex.printStackTrace();
-            //sendMessage(session.getRemote(), new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + ex.getMessage()));
+            sendRemoteMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + ex.getMessage()));
         }
     }
+
 
     private void connect(Session session, String username, ConnectCommand command) throws DataAccessException {
         saveSession(command.getGameID(), session);
         String loadMessage = loadMessage(username);
         GameData game = gameData.getGame(command.getGameID());
         LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, loadMessage);
-
+        System.out.println("Inside of connect");
         sendRemoteMessage(session, loadGameMessage);
 
         String connectNotification = generateConnectNotification(username,game);

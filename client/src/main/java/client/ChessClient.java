@@ -23,7 +23,7 @@ public class ChessClient implements ServerMessageObserver {
     private ServerFacade serverFacade;
     private String teamColor = null;
 
-    public ChessClient(int port) {
+    public ChessClient(int port) throws Exception {
         this.port = port;
         serverFacade = new ServerFacade(port, this);
     }
@@ -356,7 +356,6 @@ public class ChessClient implements ServerMessageObserver {
         }
     }
 
-
     private String getValidChessPosition() {
         Scanner scanner = new Scanner(System.in);
         String position;
@@ -404,7 +403,7 @@ public class ChessClient implements ServerMessageObserver {
 
     public ChessGame loadGame(String game) {
         //include code to deserialize game
-        return null;
+        return new ChessGame();
     }
 
     public void printNotification(String message) {

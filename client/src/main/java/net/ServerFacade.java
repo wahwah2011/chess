@@ -4,6 +4,8 @@ import chess.ChessGame;
 import client.ChessClient;
 import com.google.gson.Gson;
 import model.*;
+import websocket.commands.ConnectCommand;
+import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
 
@@ -21,14 +23,19 @@ public class ServerFacade {
 
     //for testing serverfacade without websocket
     public ServerFacade(int port) {
-        this.urlString = "http://localhost:" + port; // Initialize urlString here
+        this.urlString = "http://localhost:" + port;
         websocketCommunicator = null;
     }
 
     public ServerFacade(int port, ChessClient client) {
-        this.urlString = "http://localhost:" + port; // Initialize urlString here
+        this.urlString = "http://localhost:" + port;
         this.client = client;
-        websocketCommunicator = new WebsocketCommunicator(client);
+        try {
+            websocketCommunicator = new WebsocketCommunicator(client);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
     public AuthData registerFacade(String username, String password, String email) throws IOException {
@@ -78,6 +85,14 @@ public class ServerFacade {
         String json = serializer.toJson(joinRequest);
         String response = clientCommunicator.doPut(urlString, GAME_PATH, authToken, json);
         AuthData joinGameResponse = serializer.fromJson(response, AuthData.class);
+        ConnectCommand connectCommand = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+        String command = serializer.toJson(connectCommand);
+        try {
+            websocketCommunicator.send(command);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
         return joinGameResponse;
     }
 
