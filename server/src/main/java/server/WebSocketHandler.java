@@ -103,11 +103,15 @@ public class WebSocketHandler {
     }
 
     private String generateConnectNotification(String username, GameData game) {
-        if (game.blackUsername().equals(username)) {
-            return ("Player " + username + " joined as player on black team");
+        if (game.blackUsername() != null) {
+            if (game.blackUsername().equals(username)) {
+                return ("Player " + username + " joined as player on black team");
+            }
         }
-        else if (game.whiteUsername().equals(username)) {
-            return ("Player " + username + " joined as player on white team");
+        else if (game.whiteUsername() != null) {
+            if (game.whiteUsername().equals(username)) {
+                return ("Player " + username + " joined as player on white team");
+            }
         }
         return ("Player " + username + " joined as observer");
     }

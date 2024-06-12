@@ -271,15 +271,21 @@ public class ChessClient implements ServerMessageObserver {
 
     private void observeGame(Scanner scanner) {
         Integer gameNumber = null;
-        listGames();
-        while(gameNumber == null) {
+        ArrayList<GameData> games = listGames();
+
+        while (gameNumber == null) {
             System.out.print("Enter game number: ");
             try {
-                gameNumber = Integer.parseInt(scanner.nextLine().trim());
+                int index = Integer.parseInt(scanner.nextLine().trim());
+                gameNumber = assignGameID(index,games);
+                if (gameNumber != null) {
+                    this.gameName = games.get(index).gameName();
+                }
             } catch (Exception e) {
-                System.out.println("Please enter a string value!");
+                printErrorMessage("Please enter an existing game number!");
             }
         }
+        serverFacade.observeGame(authToken,gameNumber);
         System.out.println("Observing game " + gameNumber);
         DrawBoard board = new DrawBoard();
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
@@ -417,7 +423,7 @@ public class ChessClient implements ServerMessageObserver {
     }
 
     private void printMessage(String message) {
-        System.out.println(message);
+        System.out.println("\n" + message);
         System.out.print(SET_TEXT_COLOR_BLACK);
         System.out.print("\n");
     }

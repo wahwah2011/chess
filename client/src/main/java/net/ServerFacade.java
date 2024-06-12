@@ -87,13 +87,27 @@ public class ServerFacade {
         AuthData joinGameResponse = serializer.fromJson(response, AuthData.class);
         ConnectCommand connectCommand = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
         String command = serializer.toJson(connectCommand);
+        if (joinGameResponse.message() == null) {
+            try {
+                websocketCommunicator.send(command);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+        }
+        return joinGameResponse;
+    }
+
+    public void observeGame(String authToken, int gameID) {
+        ConnectCommand connectCommand = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+        Gson serializer = new Gson();
+        String command = serializer.toJson(connectCommand);
         try {
             websocketCommunicator.send(command);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-        return joinGameResponse;
     }
 
     public void clear() throws IOException {
