@@ -63,4 +63,23 @@ public class SQLAuthDAO extends SQLBaseDAO implements AuthDAO {
         String statement = "DELETE FROM auth";
         executeUpdate(statement);
     }
+
+    public String getUsername(String authToken) throws DataAccessException {
+        String statement = "SELECT username FROM auth WHERE authToken=?";
+        try (var conn = DatabaseManager.getConnection();
+             var stmt = conn.prepareStatement(statement)) {
+
+            stmt.setString(1, authToken);
+
+            try (var rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String username = rs.getString("username");
+                    return username;
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to get username");
+        }
+        throw new DataAccessException("Auth token doesn't exist");
+    }
 }

@@ -1,7 +1,8 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
+import dataaccess.*;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -17,7 +18,9 @@ import java.util.Map;
 @WebSocket
 public class WebSocketHandler {
 
-    private Map<Integer, HashSet<Session>> sessionMap = new HashMap(); //gameID -> session map
+    private final Map<Integer, HashSet<Session>> sessionMap = new HashMap<>(); //gameID -> session map
+    private final SQLAuthDAO authData = new SQLAuthDAO();
+    private final SQLGameDAO gameData = new SQLGameDAO();
 
     public static void main(String[] args) {
         Spark.port(8080);
@@ -31,9 +34,7 @@ public class WebSocketHandler {
             Gson serializer = new Gson();
             UserGameCommand command = serializer.fromJson(msg, UserGameCommand.class);
 
-            String username = getUsername(command.getAuthString());
-
-            saveSession(command.getGameID(), session);
+            String username = authData.getUsername(command.getAuthString());
 
             switch (command.getCommandType()) {
                 case CONNECT -> connect(session, username, (ConnectCommand) command);
@@ -42,6 +43,7 @@ public class WebSocketHandler {
                 case RESIGN -> resign(session, username, (ResignCommand) command);
             }
         } catch (DataAccessException ex) {
+            ex.printStackTrace();
             //sendMessage(session.getRemote(), new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: unauthorized"));
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -49,7 +51,20 @@ public class WebSocketHandler {
         }
     }
 
-    private void connect(Session session, String username, ConnectCommand command) throws DataAccessException {}
+    private void connect(Session session, String username, ConnectCommand command) throws DataAccessException {
+        saveSession(command.getGameID(), session);
+        String loadMessage = loadMessage(username);
+        GameData game = gameData.getGame(command.getGameID());
+        LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, loadMessage);
+
+        sendRemoteMessage(session, loadGameMessage);
+
+        String connectNotification = generateConnectNotification(username,game);
+        NotificationMessage notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, connectNotification);
+
+        broadcast(session, notification, game.gameID());
+    }
+
     private void makeMove(Session session, String username, MakeMoveCommand command) throws DataAccessException {}
     private void leaveGame(Session session, String username, LeaveGameCommand command) throws DataAccessException {}
     private void resign(Session session, String username, ResignCommand command) throws DataAccessException {}
@@ -58,22 +73,48 @@ public class WebSocketHandler {
         sessionMap.computeIfAbsent(gameID, k -> new HashSet<>()).add(session);
     }
 
-    private void broadcast(NotificationMessage notificationMessage) {}
-
-    private String getUsername(String authToken) {
-        return null;
+    private void broadcast(Session session, NotificationMessage notificationMessage, Integer gameID) {
+        HashSet<Session> sessions = sessionMap.get(gameID);
+        Gson serializer = new Gson();
+        String json = serializer.toJson(notificationMessage);
+        for (Session s : sessions) {
+            if (!s.equals(session)){
+                try {
+                    send(json, s);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
     }
 
-    private void sendMessage(Session session, Object message) {
+    private void sendRemoteMessage(Session session, Object message) {
         Gson gson = new Gson();
         String jsonMessage = gson.toJson(message);
 
         try {
-            session.getRemote().sendString(jsonMessage);
+            send(jsonMessage, session);
         } catch (IOException e) {
             e.printStackTrace();
-    }
         }
+    }
 
+    private String loadMessage(String username) {
+        return "Player " + username + " has entered the game.";
+    }
+
+    private String generateConnectNotification(String username, GameData game) {
+        if (game.blackUsername().equals(username)) {
+            return ("Player " + username + " joined as player on black team");
+        }
+        else if (game.whiteUsername().equals(username)) {
+            return ("Player " + username + " joined as player on white team");
+        }
+        return ("Player " + username + " joined as observer");
+    }
+
+    public void send(String msg, Session session) throws IOException {
+        session.getRemote().sendString(msg);
+    }
 }
 

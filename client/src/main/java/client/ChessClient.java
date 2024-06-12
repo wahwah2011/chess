@@ -25,7 +25,7 @@ public class ChessClient implements ServerMessageObserver {
 
     public ChessClient(int port) {
         this.port = port;
-        serverFacade = new ServerFacade(port);
+        serverFacade = new ServerFacade(port, this);
     }
 
     public void run() throws IOException {

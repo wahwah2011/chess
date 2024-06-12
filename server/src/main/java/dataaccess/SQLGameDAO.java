@@ -67,6 +67,31 @@ public class SQLGameDAO extends SQLBaseDAO implements GameDAO {
         throw new DataAccessException("Game ID doesn't exist");
     }
 
+    public GameData getGame(int gameID) throws DataAccessException {
+        String statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM game WHERE gameID=?";
+
+        try (var conn = DatabaseManager.getConnection();
+             var stmt = conn.prepareStatement(statement)) {
+
+            stmt.setInt(1, gameID);
+
+            try (var rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    int dbGameID = rs.getInt("gameID");
+                    String dbWhiteUsername = rs.getString("whiteUsername");
+                    String dbBlackUsername = rs.getString("blackUsername");
+                    String dbGameName = rs.getString("gameName");
+                    String dbGame = rs.getString("game");
+                    ChessGame deserializedGame = deserializeGame(dbGame);
+                    return new GameData(dbGameID, dbWhiteUsername, dbBlackUsername, dbGameName, deserializedGame, null);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to get game");
+        }
+        throw new DataAccessException("Game ID doesn't exist");
+    }
+
     @Override
     public GameList listGames() throws DataAccessException {
         ArrayList<GameData> list = new ArrayList<>();

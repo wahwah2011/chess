@@ -7,7 +7,6 @@ import dataaccess.*;
 
 public class Server {
 
-    private WebSocketHandler webSocketHandler;
     private ClearHandler clearHandler;
     private RegisterHandler registerHandler;
     private LoginHandler loginHandler;
@@ -23,7 +22,6 @@ public class Server {
         GameDAO gameData = new SQLGameDAO();
         AuthDAO authData = new SQLAuthDAO();
 
-        webSocketHandler= new WebSocketHandler();
         clearHandler = new ClearHandler(userData, gameData, authData);
         registerHandler = new RegisterHandler(userData, authData);
         loginHandler = new LoginHandler(authData, userData);
@@ -36,7 +34,7 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-        Spark.webSocket("/wb", webSocketHandler);
+        Spark.webSocket("/wb", WebSocketHandler.class);
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", ((request, response) -> registerHandler.handle(request,response)));
