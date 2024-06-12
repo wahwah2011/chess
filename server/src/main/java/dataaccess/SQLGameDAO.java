@@ -32,7 +32,8 @@ public class SQLGameDAO extends SQLBaseDAO implements GameDAO {
     @Override
     public GameData createGame(GameData gameData) throws DataAccessException {
         int gameID = new Random().nextInt(100000);
-        String gameString = serializeGame(gameData.game());
+        ChessGame game = new ChessGame();
+        String gameString = serializeGame(game);
 
         String statement = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
         executeUpdate(statement, gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameString);

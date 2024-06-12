@@ -1,5 +1,6 @@
 package server;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dataaccess.*;
@@ -7,7 +8,6 @@ import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import spark.Spark;
 import websocket.commands.*;
 import websocket.messages.*;
 
@@ -52,9 +52,9 @@ public class WebSocketHandler {
 
     private void connect(Session session, String username, ConnectCommand command) throws DataAccessException {
         saveSession(command.getGameID(), session);
-        String loadMessage = loadMessage(username);
         GameData game = gameData.getGame(command.getGameID());
-        LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, loadMessage);
+        String chessGame = serializeGame(game.game());
+        LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chessGame);
         System.out.println("Inside of connect");
         sendRemoteMessage(session, loadGameMessage);
 
@@ -64,9 +64,17 @@ public class WebSocketHandler {
         broadcast(session, notification, game.gameID());
     }
 
-    private void makeMove(Session session, String username, MakeMoveCommand command) throws DataAccessException {}
-    private void leaveGame(Session session, String username, LeaveGameCommand command) throws DataAccessException {}
-    private void resign(Session session, String username, ResignCommand command) throws DataAccessException {}
+    private void makeMove(Session session, String username, MakeMoveCommand command) throws DataAccessException {
+
+    }
+
+    private void leaveGame(Session session, String username, LeaveGameCommand command) throws DataAccessException {
+
+    }
+
+    private void resign(Session session, String username, ResignCommand command) throws DataAccessException {
+
+    }
 
     private void saveSession(Integer gameID, Session session) {
         sessionMap.computeIfAbsent(gameID, k -> new HashSet<>()).add(session);
@@ -98,8 +106,9 @@ public class WebSocketHandler {
         }
     }
 
-    private String loadMessage(String username) {
-        return "Player " + username + " has entered the game.";
+    private String serializeGame(ChessGame game) {
+        Gson serializer = new Gson();
+        return serializer.toJson(game);
     }
 
     private String generateConnectNotification(String username, GameData game) {

@@ -1,7 +1,9 @@
 package client;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPosition;
+import com.google.gson.Gson;
 import model.*;
 import net.ServerFacade;
 import ui.chessboard.DrawBoard;
@@ -22,6 +24,7 @@ public class ChessClient implements ServerMessageObserver {
     private String gameName = null;
     private ServerFacade serverFacade;
     private String teamColor = null;
+    private ChessBoard board = null;
 
     public ChessClient(int port) throws Exception {
         this.port = port;
@@ -258,9 +261,9 @@ public class ChessClient implements ServerMessageObserver {
         try {
             response = serverFacade.joinGame(this.authToken,color,gameNumber);
             if (response.message() == null) {
-                System.out.println("Joined game " + this.gameName + " successfully.");
                 isInGame = true;
-                DrawBoard board = new DrawBoard();
+                System.out.println("Joined game " + this.gameName + " successfully.");
+                DrawBoard board = new DrawBoard(this.board);
                 board.drawChessBoard(new PrintStream(System.out, true, StandardCharsets.UTF_8), this.teamColor);
             }
             else authMessage(response);
@@ -287,7 +290,7 @@ public class ChessClient implements ServerMessageObserver {
         }
         serverFacade.observeGame(authToken,gameNumber);
         System.out.println("Observing game " + gameNumber);
-        DrawBoard board = new DrawBoard();
+        DrawBoard board = new DrawBoard(this.board);
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         board.drawObserverView(out);
     }
@@ -407,9 +410,10 @@ public class ChessClient implements ServerMessageObserver {
         }
     }
 
-    public ChessGame loadGame(String game) {
-        //include code to deserialize game
-        return new ChessGame();
+    public void loadGame(String game) {
+        Gson serializer = new Gson();
+        ChessGame chessGame = serializer.fromJson(game, ChessGame.class);
+        this.board = chessGame.getBoard();
     }
 
     public void printNotification(String message) {
