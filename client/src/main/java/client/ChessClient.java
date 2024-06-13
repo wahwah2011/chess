@@ -48,7 +48,7 @@ public class ChessClient implements ServerMessageObserver {
 
     private void preLoginUI(Scanner scanner) throws IOException {
         System.out.println("[Logged out] Commands: Help, Quit, Login, Register");
-        System.out.print("Please enter a command >>> ");
+        System.out.print("Please enter a command >>> \n");
         String command = scanner.nextLine().trim().toLowerCase();
 
         switch (command) {
@@ -72,7 +72,7 @@ public class ChessClient implements ServerMessageObserver {
 
     private void postLoginUI(Scanner scanner) {
         System.out.println("[Logged in] Commands: Help, Logout, Create Game, List Games, Play Game, Observe Game");
-        System.out.print("Please enter a command >>> ");
+        System.out.print("Please enter a command >>> \n");
         String command = scanner.nextLine().trim().toLowerCase();
 
         switch (command) {
@@ -101,7 +101,7 @@ public class ChessClient implements ServerMessageObserver {
 
     private void gameUI(Scanner scanner) {
         System.out.println("[In game \"" + this.gameName + "\"] Commands: Help, Redraw, Make Move, Highlight Moves, Leave, Resign");
-        System.out.print("Please enter a command >>> ");
+        System.out.println("Please enter a command >>> \n");
         String command = scanner.nextLine().trim().toLowerCase();
         DrawBoard board = new DrawBoard();
 
@@ -262,9 +262,7 @@ public class ChessClient implements ServerMessageObserver {
             response = serverFacade.joinGame(this.authToken,color,gameNumber);
             if (response.message() == null) {
                 isInGame = true;
-                System.out.println("Joined game " + this.gameName + " successfully.");
-                DrawBoard board = new DrawBoard(this.board);
-                board.drawChessBoard(new PrintStream(System.out, true, StandardCharsets.UTF_8), this.teamColor);
+                System.out.println("Joined game " + this.gameName + " successfully.\n");
             }
             else authMessage(response);
         } catch (IOException e) {
@@ -289,10 +287,7 @@ public class ChessClient implements ServerMessageObserver {
             }
         }
         serverFacade.observeGame(authToken,gameNumber);
-        System.out.println("Observing game " + gameNumber);
-        DrawBoard board = new DrawBoard(this.board);
-        PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-        board.drawObserverView(out);
+        System.out.println("Observing game " + gameName + ".\n");
     }
 
     private void redrawBoard() {
@@ -413,7 +408,11 @@ public class ChessClient implements ServerMessageObserver {
     public void loadGame(String game) {
         Gson serializer = new Gson();
         ChessGame chessGame = serializer.fromJson(game, ChessGame.class);
-        this.board = chessGame.getBoard();
+        DrawBoard board = new DrawBoard(chessGame.getBoard());
+        if (this.teamColor != null) {
+            board.drawChessBoard(new PrintStream(System.out, true, StandardCharsets.UTF_8), this.teamColor);
+        }
+        else board.drawObserverView(new PrintStream(System.out, true, StandardCharsets.UTF_8));
     }
 
     public void printNotification(String message) {
