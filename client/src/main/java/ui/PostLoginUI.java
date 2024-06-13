@@ -104,6 +104,7 @@ public class PostLoginUI {
                 index = Integer.parseInt(scanner.nextLine().trim());
                 client.setGameID(client.assignGameID(index,games));
                 if (client.getGameID() != null) {
+                    client.setGameName(games.get(index).gameName());
                 }
             } catch (Exception e) {
                 client.printErrorMessage("Please enter an existing game number!");

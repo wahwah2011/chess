@@ -6,6 +6,7 @@ import chess.ChessPosition;
 import com.google.gson.Gson;
 import model.*;
 import net.ServerFacade;
+import ui.InGameUI;
 import ui.PostLoginUI;
 import ui.PreLoginUI;
 import ui.chessboard.DrawBoard;
@@ -37,6 +38,8 @@ public class ChessClient implements ServerMessageObserver {
         Scanner scanner = new Scanner(System.in);
         PreLoginUI preLoginUI = new PreLoginUI(this, serverFacade, scanner);
         PostLoginUI postLoginUI = new PostLoginUI(this, serverFacade, scanner);
+        InGameUI inGameUI = new InGameUI(this, serverFacade, scanner);
+
         while (true) {
             if (!isLoggedIn()) {
                 preLoginUI.run();
@@ -45,7 +48,7 @@ public class ChessClient implements ServerMessageObserver {
                 postLoginUI.run();
             }
             else {
-                gameUI(scanner);
+                inGameUI.run();
             }
         }
     }
@@ -111,35 +114,6 @@ public class ChessClient implements ServerMessageObserver {
         this.observingGame = observingGame;
     }
 
-    private void postLoginUI(Scanner scanner) {
-        System.out.println("[Logged in] Commands: Help, Logout, Create Game, List Games, Play Game, Observe Game");
-        System.out.print("Please enter a command >>> \n");
-        String command = scanner.nextLine().trim().toLowerCase();
-
-        switch (command) {
-            case "help":
-                showPostLoginHelp();
-                break;
-            case "logout":
-                logout();
-                break;
-            case "create game":
-                createGame(scanner);
-                break;
-            case "list games":
-                listGames();
-                break;
-            case "play game":
-                playGame(scanner);
-                break;
-            case "observe game":
-                observeGame(scanner);
-                break;
-            default:
-                System.out.println("Invalid command. Type 'Help' to see available commands.");
-        }
-    }
-
     private void gameUI(Scanner scanner) {
         System.out.println("[In game \"" + this.gameName + "\"] Commands: Help, Redraw, Make Move, Highlight Moves, Leave, Resign");
         System.out.println("Please enter a command >>> \n");
@@ -171,17 +145,6 @@ public class ChessClient implements ServerMessageObserver {
         }
     }
 
-
-    private void showPostLoginHelp() {
-        System.out.println("Available commands:");
-        System.out.println("Help - Displays this help text.");
-        System.out.println("Logout - Logs out the user.");
-        System.out.println("Create Game - Creates a new game.");
-        System.out.println("List Games - Lists all available games.");
-        System.out.println("Play Game - Joins a game as a player.");
-        System.out.println("Observe Game - Observes a game.\n");
-    }
-
     private void showGameHelp() {
         System.out.println("Available commands:");
         System.out.println("Help - Displays this help text.");
@@ -190,29 +153,6 @@ public class ChessClient implements ServerMessageObserver {
         System.out.println("Highlight Moves - Highlights all available moves for a specified piece.");
         System.out.println("Leave - Leave current game.");
         System.out.println("Resign - Forfeit current game.\n");
-    }
-
-    private void logout() {
-        try {
-            serverFacade.logout(this.authToken);
-            System.out.println("Successfully logged out.\n");
-            isLoggedIn = false;
-            authToken = null;
-        } catch (IOException e) {
-            printErrorMessage("Unable to log out.");
-        }
-    }
-
-    private void createGame(Scanner scanner) {
-        GameData createdGame = null;
-        System.out.print("Enter game name: ");
-        String gameName = scanner.nextLine().trim();
-        try {
-            createdGame = serverFacade.createGame(this.authToken, gameName);
-            System.out.println("Game \"" + createdGame.gameName() + "\" created successfully.\n");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public ArrayList<GameData> listGames() {
@@ -227,69 +167,6 @@ public class ChessClient implements ServerMessageObserver {
         System.out.println("Current games:");
         displayGames(games);
         return games;
-    }
-
-    private void playGame(Scanner scanner) {
-        AuthData response = null;
-        ChessGame.TeamColor color = null;
-        ArrayList<GameData> games = null;
-        games = listGames();
-
-        while (this.gameID == null) {
-            System.out.print("Enter game number: ");
-            try {
-                int index = Integer.parseInt(scanner.nextLine().trim());
-                this.gameID = assignGameID(index,games);
-                if (this.gameID != null) {
-                    this.gameName = games.get(index).gameName();
-                }
-            } catch (Exception e) {
-                printErrorMessage("Please enter an existing game number!");
-            }
-        }
-        while(color == null) {
-            System.out.print("Enter team color (white/black): ");
-            this.teamColor = scanner.nextLine().trim().toLowerCase();
-            if (this.teamColor.equals("white")) {
-                color = ChessGame.TeamColor.WHITE;
-            } else if (this.teamColor.equals("black")) {
-                color = ChessGame.TeamColor.BLACK;
-            } else {
-                printErrorMessage("Please enter a valid color! (white/black)");
-                this.teamColor = null;
-            }
-        }
-        try {
-            response = serverFacade.joinGame(this.authToken,color,this.gameID);
-            if (response.message() == null) {
-                isInGame = true;
-                System.out.println("Joined game " + this.gameName + " successfully.\n");
-            }
-            else authMessage(response);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void observeGame(Scanner scanner) {
-        Integer gameNumber = null;
-        ArrayList<GameData> games = listGames();
-
-        while (gameNumber == null) {
-            System.out.print("Enter game number: ");
-            try {
-                int index = Integer.parseInt(scanner.nextLine().trim());
-                gameNumber = assignGameID(index,games);
-                if (gameNumber != null) {
-                    this.gameName = games.get(index).gameName();
-                }
-            } catch (Exception e) {
-                printErrorMessage("Please enter an existing game number!");
-            }
-        }
-        serverFacade.observeGame(authToken,gameNumber);
-        System.out.println("Observing game " + gameName + ".\n");
-        isInGame = true;
     }
 
     private void redrawBoard() {
@@ -364,7 +241,7 @@ public class ChessClient implements ServerMessageObserver {
         }
     }
 
-    private String getValidChessPosition() {
+    public String getValidChessPosition() {
         Scanner scanner = new Scanner(System.in);
         String position;
 
