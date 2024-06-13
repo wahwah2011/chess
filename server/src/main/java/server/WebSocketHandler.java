@@ -73,21 +73,25 @@ public class WebSocketHandler {
         ChessMove chessMove = command.getMove();
 
         ChessGame copyGame = gameData.getGame(gameID).game();
-        try {
-            makeMove(copyGame,chessMove);
-            gameData.updateBoard(gameID, copyGame);
-            //sends load_game to everyone
-            String updatedGame = serializeGame(copyGame);
-            LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, updatedGame);
-            broadcastLoadGame(session, loadGameMessage, gameID);
+        // (copyGame.isPlayable()) {
+            try {
+                makeMove(copyGame,chessMove);
+                gameData.updateBoard(gameID, copyGame);
+                //sends load_game to everyone
+                String updatedGame = serializeGame(copyGame);
+                LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, updatedGame);
+                broadcastLoadGame(session, loadGameMessage, gameID);
 
-            //Server sends a Notification message to all other clients in that game informing them what move was made.
-            String moveNotification = generateMoveNotification(username, chessMove);
-            NotificationMessage notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, moveNotification);
-            broadcastNotification(session, notification, gameID);
-        } catch (InvalidMoveException e) {
-            sendRemoteMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage()));
-        }
+                //Server sends a Notification message to all other clients in that game informing them what move was made.
+                String moveNotification = generateMoveNotification(username, chessMove);
+                NotificationMessage notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, moveNotification);
+                broadcastNotification(session, notification, gameID);
+            } catch (InvalidMoveException e) {
+                sendRemoteMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage()));
+            }
+/*        else {
+            sendRemoteMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Game has been forfeit by you or another player."));
+        }*/
     }
 
     private void leaveGame(Session session, String username, LeaveGameCommand command) throws DataAccessException {
@@ -110,7 +114,13 @@ public class WebSocketHandler {
     }
 
     private void resign(Session session, String username, ResignCommand command) throws DataAccessException {
-
+        Integer gameID = command.getGameID();
+        ChessGame copyGame = gameData.getGame(gameID).game();
+        copyGame.setPlayable(false);
+        gameData.updateBoard(gameID, copyGame);
+        String resignationNotice = generateResignNotification(username);
+        NotificationMessage notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, resignationNotice);
+        broadcastForfeit(notification, gameID);
     }
 
     private void saveSession(Integer gameID, Session session) {
@@ -140,6 +150,19 @@ public class WebSocketHandler {
         HashSet<Session> sessions = sessionMap.get(gameID);
         Gson serializer = new Gson();
         String json = serializer.toJson(loadGameMessage);
+        for (Session s : sessions) {
+            try {
+                send(json, s);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private void broadcastForfeit(NotificationMessage notificationMessage, Integer gameID) {
+        HashSet<Session> sessions = sessionMap.get(gameID);
+        Gson serializer = new Gson();
+        String json = serializer.toJson(notificationMessage);
         for (Session s : sessions) {
             try {
                 send(json, s);
@@ -188,6 +211,10 @@ public class WebSocketHandler {
 
     private String generateLeaveNotification(String username) {
         return ("Player " + username + " left the game");
+    }
+
+    private String generateResignNotification(String username) {
+        return ("Player" + username + " has resigned from the game");
     }
 
     private ChessGame makeMove(ChessGame game, ChessMove move) throws InvalidMoveException {

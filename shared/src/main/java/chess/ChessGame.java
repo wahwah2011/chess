@@ -11,6 +11,7 @@ import java.util.*;
 public class ChessGame {
     private ChessBoard gameBoard;
     private TeamColor teamTurn;
+    private boolean playable = true;
 
     public ChessGame() {
     gameBoard = new ChessBoard();
@@ -61,6 +62,10 @@ public class ChessGame {
         return gameBoard;
     }
 
+    public boolean isPlayable() { return playable; }
+
+    public void setPlayable(boolean bool) { playable = bool;}
+
     /**
      * Enum identifying the 2 possible teams in a chess game
      */
@@ -109,32 +114,34 @@ public class ChessGame {
         TeamColor teamTurn = getTeamTurn();
         ChessPosition startPos = move.getStartPosition();
         ChessPosition endPos = move.getEndPosition();
-
-        if (piece != null) {
-            ArrayList<ChessMove> possMoves = new ArrayList<>(validMoves(startPos));
-            //if not valid move
-            if (possMoves.isEmpty()) {
-                throw new InvalidMoveException("That is not a valid move");
-            }
-            //elif move.startposition.piece.getteam != teamTurn
-            else if (piece.getTeamColor() != teamTurn) {
-                throw new InvalidMoveException("It is not the appropriate team's turn");
-            }
-            if (possMoves.contains(move)) {
-                if (move.getPromotionPiece() != null) {
-                    piece.setPieceType(move.getPromotionPiece());
+        if (playable) {
+            if (piece != null) {
+                ArrayList<ChessMove> possMoves = new ArrayList<>(validMoves(startPos));
+                //if not valid move
+                if (possMoves.isEmpty()) {
+                    throw new InvalidMoveException("That is not a valid move");
                 }
-                gameBoard.movePiece(startPos,endPos,piece);
-                if (teamTurn.equals(TeamColor.BLACK)) {
-                    setTeamTurn(TeamColor.WHITE);
+                //elif move.startposition.piece.getteam != teamTurn
+                else if (piece.getTeamColor() != teamTurn) {
+                    throw new InvalidMoveException("It is not the appropriate team's turn");
                 }
-                else if (teamTurn.equals(TeamColor.WHITE)) {
-                    setTeamTurn(TeamColor.BLACK);
+                if (possMoves.contains(move)) {
+                    if (move.getPromotionPiece() != null) {
+                        piece.setPieceType(move.getPromotionPiece());
+                    }
+                    gameBoard.movePiece(startPos,endPos,piece);
+                    if (teamTurn.equals(TeamColor.BLACK)) {
+                        setTeamTurn(TeamColor.WHITE);
+                    }
+                    else if (teamTurn.equals(TeamColor.WHITE)) {
+                        setTeamTurn(TeamColor.BLACK);
+                    }
                 }
+                else throw new InvalidMoveException("That is not a valid move");
             }
-            else throw new InvalidMoveException("tThat is not a valid move");
+            else throw new InvalidMoveException("There is no piece at your selected start position");
         }
-        else throw new InvalidMoveException("There is no piece at your selected start position");
+        else throw new InvalidMoveException("This game has been forfeit");
     }
 
     /**
