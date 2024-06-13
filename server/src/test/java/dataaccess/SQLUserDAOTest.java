@@ -19,7 +19,7 @@ class SQLUserDAOTest extends DAOTest {
     @Test
     void createUser() {
         int initialRowCount = dataRows();
-        assertTrue(initialRowCount == 1, "There are a viable number of rows in your database");
+        assertEquals(1, initialRowCount, "There are a viable number of rows in your database");
     }
 
     @Test

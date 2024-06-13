@@ -23,7 +23,7 @@ class SQLAuthDAOTest extends DAOTest {
     @Test
     void createAuth() {
         int initialRowCount = dataRows();
-        assertTrue(initialRowCount == 2, "There are a viable number of rows in your database");
+        assertEquals(2, initialRowCount, "There are a viable number of rows in your database");
     }
 
     @Test

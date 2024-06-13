@@ -18,7 +18,7 @@ public class PreLoginUI {
         this.scanner = scanner;
     }
 
-    public void run() throws IOException {
+    public void run() {
         preLoginUI();
     }
 
@@ -66,7 +66,7 @@ public class PreLoginUI {
         try {
             auth = serverFacade.registerFacade(username,password,email);
             client.authMessage(auth);
-            client.setAuth(auth);
+            setAuth(auth);
         } catch (Exception e) {
             client.printErrorMessage("Unable to register.");
         }
@@ -81,9 +81,17 @@ public class PreLoginUI {
         try {
             auth = serverFacade.login(username,password);
             client.authMessage(auth);
-            client.setAuth(auth);
+            setAuth(auth);
         } catch (IOException e) {
             client.printErrorMessage("Unable to login.");
+        }
+    }
+
+    public void setAuth(AuthData auth) {
+        client.setAuthToken(auth.authToken());
+        if (client.getAuthToken() != null) {
+            client.setLoggedIn(true);
+            System.out.println("Successfully logged in.\n");
         }
     }
 

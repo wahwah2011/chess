@@ -4,6 +4,7 @@ import model.AuthData;
 
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 
 public class ClientCommunicator {
 
@@ -21,7 +22,7 @@ public class ClientCommunicator {
 
     private StringBuilder readResponse(InputStream responseStream) throws IOException {
         StringBuilder response = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(responseStream, "utf-8"))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(responseStream, StandardCharsets.UTF_8))) {
             String responseLine;
             while ((responseLine = br.readLine()) != null) {
                 response.append(responseLine.trim());
@@ -35,7 +36,7 @@ public class ClientCommunicator {
         HttpURLConnection connection = openConnection(urlString, "POST", authToken);
 
         try (OutputStream os = connection.getOutputStream()) {
-            byte[] input = jsonInputString.getBytes("utf-8");
+            byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
             os.write(input, 0, input.length);
         }
 
@@ -76,7 +77,7 @@ public class ClientCommunicator {
         HttpURLConnection connection = openConnection(urlString, "PUT", authToken);
 
         try (OutputStream os = connection.getOutputStream()) {
-            byte[] input = jsonInputString.getBytes("utf-8");
+            byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
             os.write(input, 0, input.length);
         }
 

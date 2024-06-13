@@ -4,6 +4,7 @@ import chess.ChessGame;
 import client.ChessClient;
 import model.AuthData;
 import model.GameData;
+import model.GameList;
 import net.ServerFacade;
 import ui.chessboard.DrawBoard;
 
@@ -45,7 +46,7 @@ public class PostLoginUI {
                 createGame(scanner);
                 break;
             case "list games":
-                client.listGames();
+                listGames();
                 break;
             case "play game":
                 playGame(scanner);
@@ -95,14 +96,14 @@ public class PostLoginUI {
         AuthData response = null;
         ChessGame.TeamColor color = null;
         ArrayList<GameData> games = null;
-        games = client.listGames();
+        games = listGames();
         int index = 0;
 
         while (client.getGameID() == null) {
             System.out.print("Enter game number: ");
             try {
                 index = Integer.parseInt(scanner.nextLine().trim());
-                client.setGameID(client.assignGameID(index,games));
+                client.setGameID(assignGameID(index,games));
                 if (client.getGameID() != null) {
                     client.setGameName(games.get(index).gameName());
                 }
@@ -140,13 +141,13 @@ public class PostLoginUI {
 
     private void observeGame(Scanner scanner) {
         Integer gameNumber = null;
-        ArrayList<GameData> games = client.listGames();
+        ArrayList<GameData> games = listGames();
 
         while (gameNumber == null) {
             System.out.print("Enter game number: ");
             try {
                 int index = Integer.parseInt(scanner.nextLine().trim());
-                gameNumber = client.assignGameID(index,games);
+                gameNumber = assignGameID(index,games);
                 if (gameNumber != null) {
                     client.setGameName(games.get(index).gameName());
                 }
@@ -158,4 +159,48 @@ public class PostLoginUI {
         System.out.println("Observing game " + client.getGameName() + ".\n");
         client.setObservingGame(true);
     }
+
+
+    public ArrayList<GameData> listGames() {
+        GameList gameData = null;
+        ArrayList<GameData> games = null;
+        try {
+            gameData = serverFacade.listGames(client.getAuthToken());
+            games = gameData.games();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("Current games:");
+        displayGames(games);
+        return games;
+    }
+
+    private void displayGames(ArrayList<GameData> games) {
+        if (!games.isEmpty()) {
+            for (int i = 0; i < games.size(); i++) {
+                GameData game = games.get(i);
+                System.out.print(i + ") " + "Name: \"" + game.gameName() + "\"\n");
+                if (game.whiteUsername() != null) {
+                    System.out.print("White player: " + game.whiteUsername() + "\n");
+                }
+                else System.out.print("White player: None \n");
+                if (game.blackUsername() != null) {
+                    System.out.print("Black player: " + game.blackUsername() + "\n");
+                }
+                else System.out.print("Black player: None \n");
+                System.out.print('\n');
+            }
+        }
+        else System.out.println("Currently no games in session. Create a new game if you would like to play.\n");
+    }
+
+    public Integer assignGameID(int index, ArrayList<GameData> games) {
+        if (index < 0 || index >= games.size()) {
+            client.printErrorMessage("Please enter a valid index!");
+            return null;
+        } else {
+            return games.get(index).gameID();
+        }
+    }
+
 }

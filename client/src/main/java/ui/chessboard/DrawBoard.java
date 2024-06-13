@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import static ui.EscapeSequences.*;
 
 public class DrawBoard {
-    private ChessBoard chessBoard; //8x8 2D array which contains ChessPiece objects
+    private final ChessBoard chessBoard; //8x8 2D array which contains ChessPiece objects
     private boolean[][] validMoves = new boolean[8][8];
     private static final int BOARD_SIZE_IN_SQUARES = 8;
 

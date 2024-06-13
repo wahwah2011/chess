@@ -482,9 +482,9 @@ public class WebSocketTests {
     }
 
     @FunctionalInterface
-    private static interface MessageAsserter {
+    private interface MessageAsserter {
         void runAssertions(String username, List<TestMessage> messages);
     }
 
-    private static record WebsocketUser(String username, String authToken) { }
+    private record WebsocketUser(String username, String authToken) { }
 }
