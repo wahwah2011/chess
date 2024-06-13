@@ -41,6 +41,20 @@ public class SQLGameDAO extends SQLBaseDAO implements GameDAO {
         return new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game(), null);
     }
 
+    private void removePlayer(JoinRequest leaveRequest) throws DataAccessException {
+        String teamColor = null;
+        if (leaveRequest.playerColor().equals(ChessGame.TeamColor.BLACK)) {
+            teamColor = "blackUsername";
+        }
+        else if (leaveRequest.playerColor().equals(ChessGame.TeamColor.WHITE)) {
+            teamColor = "whiteUsername";
+        }
+
+        String statement = "DELETE " + teamColor + "FROM game WHERE gameID=?";
+
+        executeUpdate(statement, leaveRequest.gameID());
+    }
+
     @Override
     public GameData getGame(JoinRequest joinRequest) throws DataAccessException {
         int gameID = joinRequest.gameID();
@@ -156,4 +170,6 @@ public class SQLGameDAO extends SQLBaseDAO implements GameDAO {
     private ChessGame deserializeGame(String json) {
         return new Gson().fromJson(json, ChessGame.class);
     }
+
+
 }

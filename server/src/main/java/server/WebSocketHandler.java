@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dataaccess.*;
 import model.GameData;
+import model.JoinRequest;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -69,7 +70,7 @@ public class WebSocketHandler {
     }
 
     private void leaveGame(Session session, String username, LeaveGameCommand command) throws DataAccessException {
-
+        removeSession(command.getGameID(), session);
     }
 
     private void resign(Session session, String username, ResignCommand command) throws DataAccessException {
@@ -78,6 +79,10 @@ public class WebSocketHandler {
 
     private void saveSession(Integer gameID, Session session) {
         sessionMap.computeIfAbsent(gameID, k -> new HashSet<>()).add(session);
+    }
+
+    private void removeSession(Integer gameID, Session session) {
+        sessionMap.remove(gameID, session);
     }
 
     private void broadcast(Session session, NotificationMessage notificationMessage, Integer gameID) {

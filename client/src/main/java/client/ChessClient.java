@@ -6,6 +6,7 @@ import chess.ChessPosition;
 import com.google.gson.Gson;
 import model.*;
 import net.ServerFacade;
+import ui.PreLoginUI;
 import ui.chessboard.DrawBoard;
 import websocket.messages.*;
 import java.io.IOException;
@@ -18,10 +19,12 @@ import static ui.EscapeSequences.*;
 
 public class ChessClient implements ServerMessageObserver {
     private int port;
+    private PreLoginUI preLoginUI;
     private boolean isLoggedIn = false;
     private boolean isInGame = false;
     private String authToken = null;
     private String gameName = null;
+    private Integer gameID = null;
     private ServerFacade serverFacade;
     private String teamColor = null;
     private ChessBoard board = null;
@@ -33,9 +36,10 @@ public class ChessClient implements ServerMessageObserver {
 
     public void run() throws IOException {
         Scanner scanner = new Scanner(System.in);
+        preLoginUI = new PreLoginUI(this, serverFacade, scanner);
         while (true) {
             if (!isLoggedIn()) {
-                preLoginUI(scanner);
+                preLoginUI.run();
             }
             else if (!isInGame) {
                 postLoginUI(scanner);
@@ -230,16 +234,15 @@ public class ChessClient implements ServerMessageObserver {
     private void playGame(Scanner scanner) {
         AuthData response = null;
         ChessGame.TeamColor color = null;
-        Integer gameNumber = null;
         ArrayList<GameData> games = null;
         games = listGames();
 
-        while (gameNumber == null) {
+        while (this.gameID == null) {
             System.out.print("Enter game number: ");
             try {
                 int index = Integer.parseInt(scanner.nextLine().trim());
-                gameNumber = assignGameID(index,games);
-                if (gameNumber != null) {
+                this.gameID = assignGameID(index,games);
+                if (this.gameID != null) {
                     this.gameName = games.get(index).gameName();
                 }
             } catch (Exception e) {
@@ -259,7 +262,7 @@ public class ChessClient implements ServerMessageObserver {
             }
         }
         try {
-            response = serverFacade.joinGame(this.authToken,color,gameNumber);
+            response = serverFacade.joinGame(this.authToken,color,this.gameID);
             if (response.message() == null) {
                 isInGame = true;
                 System.out.println("Joined game " + this.gameName + " successfully.\n");
@@ -307,7 +310,7 @@ public class ChessClient implements ServerMessageObserver {
     }
 
     private void leave() {
-
+       // serverFacade.leaveGame(authToken, teamColor, gameID);
     }
 
     private void resign(Scanner scanner) {
@@ -318,7 +321,7 @@ public class ChessClient implements ServerMessageObserver {
         return this.isLoggedIn && this.authToken != null;
     }
 
-    private void setAuth(AuthData auth) {
+    public void setAuth(AuthData auth) {
         this.authToken = auth.authToken();
         if (this.authToken != null) {
             isLoggedIn = true;
@@ -326,7 +329,7 @@ public class ChessClient implements ServerMessageObserver {
         }
     }
 
-    private void authMessage(AuthData auth) {
+    public void authMessage(AuthData auth) {
         if (auth.message() != null) {
             printErrorMessage(auth.message());
         }
@@ -420,7 +423,7 @@ public class ChessClient implements ServerMessageObserver {
         printMessage(message);
     }
 
-    private void printErrorMessage(String message) {
+    public void printErrorMessage(String message) {
         System.out.print(SET_TEXT_COLOR_RED);
         printMessage(message);
     }

@@ -110,6 +110,13 @@ public class ServerFacade {
         }
     }
 
+    public void leaveGame(String authToken, ChessGame.TeamColor playerColor, int gameID) throws IOException {
+        JoinRequest leaveRequest = new JoinRequest(playerColor, gameID);
+        Gson serializer = new Gson();
+        String json = serializer.toJson(leaveRequest);
+        clientCommunicator.doPut(urlString, GAME_PATH, authToken, json);
+    }
+
     public void clear() throws IOException {
         clientCommunicator.doDelete(urlString, DB_PATH,null);
     }
