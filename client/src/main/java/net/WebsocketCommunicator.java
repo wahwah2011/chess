@@ -35,7 +35,6 @@ public class WebsocketCommunicator extends Endpoint {
                         observer.notify(new ErrorMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage()));
                     }
                 }
-
             });
         } catch (DeploymentException e) {
             throw new RuntimeException("Failed to connect to the WebSocket server. Ensure the server is running and the URI is correct.", e);

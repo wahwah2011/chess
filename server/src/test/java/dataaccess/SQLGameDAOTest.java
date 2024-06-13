@@ -35,13 +35,13 @@ class SQLGameDAOTest extends DAOTest{
 
     @Test
     void getGame() throws DataAccessException {
-        GameData game = gameData.getGame(new JoinRequest(null, createdGame.gameID()));
+        GameData game = gameData.getGame(createdGame.gameID());
         assertEquals(game.gameName(),existingGame.gameName());
     }
 
     @Test
     void getGameFail() {
-        assertThrows(DataAccessException.class, () -> gameData.getGame(new JoinRequest(null,12345)));
+        assertThrows(DataAccessException.class, () -> gameData.getGame(12345));
     }
 
     @Test
@@ -61,15 +61,24 @@ class SQLGameDAOTest extends DAOTest{
     void updateGame() throws DataAccessException {
         JoinRequest joinRequest = new JoinRequest(ChessGame.TeamColor.BLACK,createdGame.gameID());
         gameData.updateGame(createdGame,joinRequest,"testBlackUser");
-        GameData game = gameData.getGame(joinRequest);
+        GameData game = gameData.getGame(joinRequest.gameID());
         assertEquals(game.blackUsername(), "testBlackUser");
+    }
+
+    @Test
+    void deletePLayer() throws DataAccessException {
+        JoinRequest joinRequest = new JoinRequest(ChessGame.TeamColor.BLACK,createdGame.gameID());
+        gameData.updateGame(createdGame,joinRequest,"testBlackUser");
+        gameData.removeUser(createdGame.gameID(), "testBlackUser", "black");
+        GameData game = gameData.getGame(joinRequest.gameID());
+        assertTrue(game.blackUsername() == null);
     }
 
     @Test
     void updateGameFail() throws DataAccessException {
         JoinRequest joinRequest = new JoinRequest(ChessGame.TeamColor.BLACK,createdGame.gameID());
         gameData.updateGame(createdGame,joinRequest,"testBlackUser");
-        GameData game = gameData.getGame(joinRequest);
+        GameData game = gameData.getGame(joinRequest.gameID());
         assertThrows(DataAccessException.class, () -> gameData.updateGame(game,joinRequest,"fakeBlackUser"));
     }
 

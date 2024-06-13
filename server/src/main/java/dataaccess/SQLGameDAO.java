@@ -41,48 +41,8 @@ public class SQLGameDAO extends SQLBaseDAO implements GameDAO {
         return new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game(), null);
     }
 
-    private void removePlayer(JoinRequest leaveRequest) throws DataAccessException {
-        String teamColor = null;
-        if (leaveRequest.playerColor().equals(ChessGame.TeamColor.BLACK)) {
-            teamColor = "blackUsername";
-        }
-        else if (leaveRequest.playerColor().equals(ChessGame.TeamColor.WHITE)) {
-            teamColor = "whiteUsername";
-        }
-
-        String statement = "DELETE " + teamColor + "FROM game WHERE gameID=?";
-
-        executeUpdate(statement, leaveRequest.gameID());
-    }
-
     @Override
-    public GameData getGame(JoinRequest joinRequest) throws DataAccessException {
-        int gameID = joinRequest.gameID();
-        String statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM game WHERE gameID=?";
-
-        try (var conn = DatabaseManager.getConnection();
-             var stmt = conn.prepareStatement(statement)) {
-
-            stmt.setInt(1, gameID);
-
-            try (var rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    int dbGameID = rs.getInt("gameID");
-                    String dbWhiteUsername = rs.getString("whiteUsername");
-                    String dbBlackUsername = rs.getString("blackUsername");
-                    String dbGameName = rs.getString("gameName");
-                    String dbGame = rs.getString("game");
-                    ChessGame deserializedGame = deserializeGame(dbGame);
-                    return new GameData(dbGameID, dbWhiteUsername, dbBlackUsername, dbGameName, deserializedGame, null);
-                }
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Unable to get game");
-        }
-        throw new DataAccessException("Game ID doesn't exist");
-    }
-
-    public GameData getGame(int gameID) throws DataAccessException {
+    public GameData getGame(Integer gameID) throws DataAccessException {
         String statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM game WHERE gameID=?";
 
         try (var conn = DatabaseManager.getConnection();
@@ -151,6 +111,33 @@ public class SQLGameDAO extends SQLBaseDAO implements GameDAO {
             }
         }
         executeUpdate(statement, userName, gameID);
+    }
+
+    public void updateBoard(Integer gameID, ChessGame game) {
+        String serializedGame = serializeGame(game);
+        String statement = "UPDATE game SET game = ? WHERE gameID = ?";
+        try {
+            executeUpdate(statement, serializedGame, gameID);
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Unable to updateBoard");
+        }
+    }
+
+    public void removeUser(Integer gameID, String username, String color) {
+        String statement = null;
+        if (color.equals("white")) {
+            statement = "UPDATE game SET whiteUsername = NULL WHERE gameID = ?";
+        }
+        else if (color.equals("black")) {
+            statement = "UPDATE game SET blackUsername = NULL WHERE gameID = ?";
+        }
+        try {
+            executeUpdate(statement, gameID);
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Unable to delete player");
+        }
     }
 
     @Override

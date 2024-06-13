@@ -37,9 +37,8 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public GameData getGame(JoinRequest joinRequest) throws DataAccessException {
+    public GameData getGame(Integer gameID) throws DataAccessException {
         GameData game = new GameData(null, null, null, null, null, null);
-        int gameID = joinRequest.gameID();
         for (GameData g : games) {
             int currGameID = g.gameID();
             if (currGameID == gameID) {

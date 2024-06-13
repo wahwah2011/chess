@@ -1,10 +1,12 @@
 package net;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import client.ChessClient;
 import com.google.gson.Gson;
 import model.*;
 import websocket.commands.ConnectCommand;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
@@ -102,6 +104,18 @@ public class ServerFacade {
         ConnectCommand connectCommand = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
         Gson serializer = new Gson();
         String command = serializer.toJson(connectCommand);
+        try {
+            websocketCommunicator.send(command);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void makeMove(Integer gameID, String authToken, ChessMove move) {
+        MakeMoveCommand makeMoveCommand = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, move);
+        Gson serializer = new Gson();
+        String command = serializer.toJson(makeMoveCommand);
         try {
             websocketCommunicator.send(command);
         } catch (Exception e) {

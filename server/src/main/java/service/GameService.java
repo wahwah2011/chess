@@ -66,7 +66,7 @@ public class GameService extends Authorization {
         String username = authorized.username();
 
         try {
-            game = gameDAO.getGame(joinRequest);
+            game = gameDAO.getGame(joinRequest.gameID());
         } catch (DataAccessException e) {
             return new AuthData(null,null,"Error: bad request");
         }
