@@ -94,13 +94,19 @@ public class WebSocketHandler {
         Integer gameID = command.getGameID();
         removeSession(gameID, session);
         GameData game = gameData.getGame(gameID);
-        if (game.whiteUsername().equals(username)) {
-            gameData.removeUser(command.getGameID(), username, "white");
+        if (game.whiteUsername() != null) {
+            if (game.whiteUsername().equals(username)) {
+                gameData.removeUser(command.getGameID(), username, "white");
+            }
         }
-        else if (game.blackUsername().equals(username)) {
-            gameData.removeUser(command.getGameID(), username, "black");
+        if (game.blackUsername() != null) {
+            if (game.blackUsername().equals(username)) {
+                gameData.removeUser(command.getGameID(), username, "black");
+            }
         }
-
+        String leaveNotification = generateLeaveNotification(username);
+        NotificationMessage notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, leaveNotification);
+        broadcastNotification(session, notification, gameID);
     }
 
     private void resign(Session session, String username, ResignCommand command) throws DataAccessException {
@@ -178,6 +184,10 @@ public class WebSocketHandler {
         String end = convertToPositionString(move.getEndPosition());
 
         return ("Player " + username + "made the move " + start + end);
+    }
+
+    private String generateLeaveNotification(String username) {
+        return ("Player " + username + " left the game");
     }
 
     private ChessGame makeMove(ChessGame game, ChessMove move) throws InvalidMoveException {
