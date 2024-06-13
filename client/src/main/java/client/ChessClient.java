@@ -6,6 +6,7 @@ import chess.ChessPosition;
 import com.google.gson.Gson;
 import model.*;
 import net.ServerFacade;
+import ui.PostLoginUI;
 import ui.PreLoginUI;
 import ui.chessboard.DrawBoard;
 import websocket.messages.*;
@@ -18,31 +19,30 @@ import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
 public class ChessClient implements ServerMessageObserver {
-    private int port;
-    private PreLoginUI preLoginUI;
     private boolean isLoggedIn = false;
     private boolean isInGame = false;
+    private boolean observingGame = false;
     private String authToken = null;
     private String gameName = null;
     private Integer gameID = null;
-    private ServerFacade serverFacade;
+    private final ServerFacade serverFacade;
     private String teamColor = null;
     private ChessBoard board = null;
 
     public ChessClient(int port) throws Exception {
-        this.port = port;
         serverFacade = new ServerFacade(port, this);
     }
 
     public void run() throws IOException {
         Scanner scanner = new Scanner(System.in);
-        preLoginUI = new PreLoginUI(this, serverFacade, scanner);
+        PreLoginUI preLoginUI = new PreLoginUI(this, serverFacade, scanner);
+        PostLoginUI postLoginUI = new PostLoginUI(this, serverFacade, scanner);
         while (true) {
             if (!isLoggedIn()) {
                 preLoginUI.run();
             }
             else if (!isInGame) {
-                postLoginUI(scanner);
+                postLoginUI.run();
             }
             else {
                 gameUI(scanner);
@@ -50,28 +50,65 @@ public class ChessClient implements ServerMessageObserver {
         }
     }
 
-    private void preLoginUI(Scanner scanner) throws IOException {
-        System.out.println("[Logged out] Commands: Help, Quit, Login, Register");
-        System.out.print("Please enter a command >>> \n");
-        String command = scanner.nextLine().trim().toLowerCase();
 
-        switch (command) {
-            case "help":
-                showPreLoginHelp();
-                break;
-            case "quit":
-                System.out.println("Exiting the program...");
-                System.exit(0);
-                break;
-            case "login":
-                login(scanner);
-                break;
-            case "register":
-                register(scanner);
-                break;
-            default:
-                System.out.println("Invalid command. Type 'Help' to see available commands.\n");
-        }
+    public void setLoggedIn(boolean loggedIn) {
+        isLoggedIn = loggedIn;
+    }
+
+    public boolean isInGame() {
+        return isInGame;
+    }
+
+    public void setInGame(boolean inGame) {
+        isInGame = inGame;
+    }
+
+    public String getAuthToken() {
+        return authToken;
+    }
+
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
+    }
+
+    public String getGameName() {
+        return gameName;
+    }
+
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
+    }
+
+    public Integer getGameID() {
+        return gameID;
+    }
+
+    public void setGameID(Integer gameID) {
+        this.gameID = gameID;
+    }
+
+    public String getTeamColor() {
+        return teamColor;
+    }
+
+    public void setTeamColor(String teamColor) {
+        this.teamColor = teamColor;
+    }
+
+    public ChessBoard getBoard() {
+        return board;
+    }
+
+    public void setBoard(ChessBoard board) {
+        this.board = board;
+    }
+
+    public boolean isObservingGame() {
+        return observingGame;
+    }
+
+    public void setObservingGame(boolean observingGame) {
+        this.observingGame = observingGame;
     }
 
     private void postLoginUI(Scanner scanner) {
@@ -134,13 +171,6 @@ public class ChessClient implements ServerMessageObserver {
         }
     }
 
-    private void showPreLoginHelp() {
-        System.out.println("Available commands:");
-        System.out.println("Help - Displays this help text.");
-        System.out.println("Quit - Exits the program.");
-        System.out.println("Login - Prompts for login information.");
-        System.out.println("Register - Prompts for registration information.\n");
-    }
 
     private void showPostLoginHelp() {
         System.out.println("Available commands:");
@@ -160,38 +190,6 @@ public class ChessClient implements ServerMessageObserver {
         System.out.println("Highlight Moves - Highlights all available moves for a specified piece.");
         System.out.println("Leave - Leave current game.");
         System.out.println("Resign - Forfeit current game.\n");
-    }
-
-    private void register(Scanner scanner) {
-        AuthData auth = null;
-        System.out.print("Enter username: ");
-        String username = scanner.nextLine().trim();
-        System.out.print("Enter password: ");
-        String password = scanner.nextLine().trim();
-        System.out.print("Enter email: ");
-        String email = scanner.nextLine().trim();
-        try {
-            auth = serverFacade.registerFacade(username,password,email);
-            authMessage(auth);
-            setAuth(auth);
-        } catch (Exception e) {
-            printErrorMessage("Unable to register.");
-        }
-    }
-
-    private void login(Scanner scanner) {
-        AuthData auth = null;
-        System.out.print("Enter username: ");
-        String username = scanner.nextLine().trim();
-        System.out.print("Enter password: ");
-        String password = scanner.nextLine().trim();
-        try {
-            auth = serverFacade.login(username,password);
-            authMessage(auth);
-            setAuth(auth);
-        } catch (IOException e) {
-            printErrorMessage("Unable to login.");
-        }
     }
 
     private void logout() {
@@ -217,7 +215,7 @@ public class ChessClient implements ServerMessageObserver {
         }
     }
 
-    private ArrayList<GameData> listGames() {
+    public ArrayList<GameData> listGames() {
         GameList gameData = null;
         ArrayList<GameData> games = null;
         try {
@@ -291,10 +289,11 @@ public class ChessClient implements ServerMessageObserver {
         }
         serverFacade.observeGame(authToken,gameNumber);
         System.out.println("Observing game " + gameName + ".\n");
+        isInGame = true;
     }
 
     private void redrawBoard() {
-        DrawBoard board = new DrawBoard();
+        DrawBoard board = new DrawBoard(this.board);
         board.drawChessBoard(new PrintStream(System.out, true, StandardCharsets.UTF_8), this.teamColor);
     }
 
@@ -311,10 +310,12 @@ public class ChessClient implements ServerMessageObserver {
 
     private void leave() {
        // serverFacade.leaveGame(authToken, teamColor, gameID);
+        isInGame = false;
+        gameID = null;
     }
 
     private void resign(Scanner scanner) {
-
+        isInGame = false;
     }
 
     private boolean isLoggedIn() {
@@ -354,7 +355,7 @@ public class ChessClient implements ServerMessageObserver {
         else System.out.println("Currently no games in session. Create a new game if you would like to play.\n");
     }
 
-    private Integer assignGameID(int index, ArrayList<GameData> games) {
+    public Integer assignGameID(int index, ArrayList<GameData> games) {
         if (index < 0 || index >= games.size()) {
             printErrorMessage("Please enter a valid index!");
             return null;
