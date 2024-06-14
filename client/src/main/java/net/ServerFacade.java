@@ -5,9 +5,7 @@ import chess.ChessMove;
 import client.ChessClient;
 import com.google.gson.Gson;
 import model.*;
-import websocket.commands.ConnectCommand;
-import websocket.commands.MakeMoveCommand;
-import websocket.commands.UserGameCommand;
+import websocket.commands.*;
 
 import java.io.IOException;
 
@@ -90,12 +88,7 @@ public class ServerFacade {
         ConnectCommand connectCommand = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
         String command = serializer.toJson(connectCommand);
         if (joinGameResponse.message() == null) {
-            try {
-                websocketCommunicator.send(command);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
+            sendCommand(command);
         }
         return joinGameResponse;
     }
@@ -104,34 +97,40 @@ public class ServerFacade {
         ConnectCommand connectCommand = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
         Gson serializer = new Gson();
         String command = serializer.toJson(connectCommand);
-        try {
-            websocketCommunicator.send(command);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
+        sendCommand(command);
     }
 
     public void makeMove(Integer gameID, String authToken, ChessMove move) {
         MakeMoveCommand makeMoveCommand = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, move);
         Gson serializer = new Gson();
         String command = serializer.toJson(makeMoveCommand);
-        try {
-            websocketCommunicator.send(command);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
+        sendCommand(command);
     }
 
-    public void leaveGame(String authToken, ChessGame.TeamColor playerColor, int gameID) throws IOException {
-        JoinRequest leaveRequest = new JoinRequest(playerColor, gameID);
+    public void leaveGame(String authToken, Integer gameID) {
+        LeaveGameCommand leaveGameCommand = new LeaveGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
         Gson serializer = new Gson();
-        String json = serializer.toJson(leaveRequest);
-        clientCommunicator.doPut(urlString, GAME_PATH, authToken, json);
+        String command = serializer.toJson(leaveGameCommand);
+        sendCommand(command);
+    }
+
+    public void resignGame(Integer gameID, String authToken) {
+        ResignCommand resignCommand = new ResignCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+        Gson serializer = new Gson();
+        String command = serializer.toJson(resignCommand);
+        sendCommand(command);
     }
 
     public void clear() throws IOException {
         clientCommunicator.doDelete(urlString, DB_PATH,null);
+    }
+
+    public void sendCommand(String command) {
+        try {
+            websocketCommunicator.send(command);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException();
+        }
     }
 }

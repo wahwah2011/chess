@@ -71,27 +71,62 @@ public class WebSocketHandler {
         System.out.println("Inside of makeMove");
         Integer gameID = command.getGameID();
         ChessMove chessMove = command.getMove();
+        String checkTeam = null;
+        boolean isCheck = false;
+        boolean isCheckmate = false;
+        boolean observer = isObserver(gameID, username);
 
-        ChessGame copyGame = gameData.getGame(gameID).game();
-        // (copyGame.isPlayable()) {
-            try {
-                makeMove(copyGame,chessMove);
-                gameData.updateBoard(gameID, copyGame);
-                //sends load_game to everyone
-                String updatedGame = serializeGame(copyGame);
-                LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, updatedGame);
-                broadcastLoadGame(session, loadGameMessage, gameID);
+        if (!observer) {
+            ChessGame copyGame = gameData.getGame(gameID).game();
+            if (copyGame.isPlayable()) {
+                try {
+                    makeMove(copyGame, chessMove);
+                    //dumb hack to check if
+                    isCheckmate = copyGame.isInCheckmate(ChessGame.TeamColor.BLACK);
+                    checkTeam = "Black";
+                    if (!isCheckmate) {
+                        isCheckmate = copyGame.isInCheckmate(ChessGame.TeamColor.WHITE);
+                        checkTeam = "White";
+                    }
+                    if (isCheckmate) {
+                        isCheck = true;
+                    } else {
+                        isCheck = copyGame.isInCheck(ChessGame.TeamColor.BLACK);
+                        checkTeam = "Black";
+                    }
+                    if (!isCheck) {
+                        isCheck = copyGame.isInCheck(ChessGame.TeamColor.WHITE);
+                        checkTeam = "White";
+                    }
+                    gameData.updateBoard(gameID, copyGame);
+                    //sends load_game to everyone
+                    String updatedGame = serializeGame(copyGame);
+                    LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, updatedGame);
+                    broadcastLoadGame(session, loadGameMessage, gameID);
 
-                //Server sends a Notification message to all other clients in that game informing them what move was made.
-                String moveNotification = generateMoveNotification(username, chessMove);
-                NotificationMessage notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, moveNotification);
-                broadcastNotification(session, notification, gameID);
-            } catch (InvalidMoveException e) {
-                sendRemoteMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage()));
+                    //Server sends a Notification message to all other clients in that game informing them what move was made.
+                    String moveNotification = generateMoveNotification(username, chessMove);
+                    NotificationMessage notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, moveNotification);
+                    broadcastNotification(session, notification, gameID);
+                    if (isCheckmate) {
+                        String checkmateMessage = generateCheckmateNotification(checkTeam);
+                        NotificationMessage checkmateNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkmateMessage);
+                        broadcastForfeit(checkmateNotification, gameID);
+                    } else if (isCheck) {
+                        String checkMessage = generateCheckNotification(checkTeam);
+                        NotificationMessage checkNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkMessage);
+                        broadcastForfeit(checkNotification, gameID);
+                    }
+                } catch (InvalidMoveException e) {
+                    sendRemoteMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage()));
+                }
+            } else {
+                sendRemoteMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Game has been forfeit by you or another player."));
             }
-/*        else {
-            sendRemoteMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Game has been forfeit by you or another player."));
-        }*/
+        }
+        else {
+            sendRemoteMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Observers cannot make chess moves."));
+        }
     }
 
     private void leaveGame(Session session, String username, LeaveGameCommand command) throws DataAccessException {
@@ -116,11 +151,18 @@ public class WebSocketHandler {
     private void resign(Session session, String username, ResignCommand command) throws DataAccessException {
         Integer gameID = command.getGameID();
         ChessGame copyGame = gameData.getGame(gameID).game();
-        copyGame.setPlayable(false);
-        gameData.updateBoard(gameID, copyGame);
-        String resignationNotice = generateResignNotification(username);
-        NotificationMessage notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, resignationNotice);
-        broadcastForfeit(notification, gameID);
+        boolean observer = isObserver(gameID, username);
+
+        if (!observer) {
+            copyGame.setPlayable(false);
+            gameData.updateBoard(gameID, copyGame);
+            String resignationNotice = generateResignNotification(username);
+            NotificationMessage notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, resignationNotice);
+            broadcastForfeit(notification, gameID);
+        }
+        else {
+            sendRemoteMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Observers cannot resign."));
+        }
     }
 
     private void saveSession(Integer gameID, Session session) {
@@ -217,6 +259,14 @@ public class WebSocketHandler {
         return ("Player" + username + " has resigned from the game");
     }
 
+    private String generateCheckmateNotification(String checkTeam) {
+        return (checkTeam + " team is in checkmate!");
+    }
+
+    private String generateCheckNotification(String checkTeam) {
+        return (checkTeam + " team is in check!");
+    }
+
     private ChessGame makeMove(ChessGame game, ChessMove move) throws InvalidMoveException {
         game.makeMove(move);
         return game;
@@ -231,6 +281,15 @@ public class WebSocketHandler {
 
     public void send(String msg, Session session) throws IOException {
         session.getRemote().sendString(msg);
+    }
+
+    private boolean isObserver(Integer gameID, String username) throws DataAccessException {
+        boolean observer = false;
+        GameData game = gameData.getGame(gameID);
+        if (!game.blackUsername().equals(username) && !game.whiteUsername().equals(username)) {
+            observer = true;
+        }
+        return observer;
     }
 
 }

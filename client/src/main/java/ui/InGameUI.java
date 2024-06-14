@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessMove;
 import chess.ChessPosition;
 import client.ChessClient;
 import net.ServerFacade;
@@ -71,7 +72,8 @@ public class InGameUI {
     }
 
     private void makeMove() {
-
+        ChessMove move = promptChessMove();
+        serverFacade.makeMove(client.getGameID(), client.getAuthToken(), move);
     }
 
     private void highlightMoves() {
@@ -82,14 +84,18 @@ public class InGameUI {
     }
 
     private void leave() {
-        // serverFacade.leaveGame(authToken, teamColor, gameID);
+        serverFacade.leaveGame(client.getAuthToken(), client.getGameID());
         client.setInGame(false);
         client.setObservingGame(false);
         client.setGameID(null);
     }
 
     private void resign() {
-        client.setInGame(false);
+        boolean confirmed = resignConfirmation();
+        if (confirmed) {
+            client.setInGame(false);
+            serverFacade.resignGame(client.getGameID(), client.getAuthToken());
+        };
     }
 
     private ChessPosition convertToChessPosition(String position) {
@@ -126,5 +132,28 @@ public class InGameUI {
         char column = position.charAt(1);
 
         return (row >= '1' && row <= '8') && (column >= 'a' && column <= 'h');
+    }
+
+    private ChessMove promptChessMove() {
+        String startPosition = getValidChessPosition();
+        String endPosition = getValidChessPosition();
+        ChessPosition start = convertToChessPosition(startPosition);
+        ChessPosition end = convertToChessPosition(endPosition);
+        return new ChessMove(start, end);
+    }
+
+    private boolean resignConfirmation() {
+        while (true) {
+            System.out.println("Are you sure you want to resign from the game? (yes/no)");
+            String answer = scanner.nextLine().trim().toLowerCase();
+
+            if (answer.equals("yes") || answer.equals("y")) {
+                return true;
+            }
+            else if (answer.equals("no") || answer.equals("n")) {
+                return false;
+            }
+            else client.printErrorMessage("Invalid input. Please answer yes/no.");
+        }
     }
 }
