@@ -272,11 +272,6 @@ public class WebSocketHandler {
         return (checkTeam + " team is in check!");
     }
 
-/*    private ChessGame makeMove(ChessGame game, ChessMove move) {
-        game.makeMove(move);
-        return game;
-    }*/
-
     public String convertToPositionString(ChessPosition chessPosition) {
         int row = chessPosition.getRow();
         char column = (char) ('a' + chessPosition.getColumn() - 1);
