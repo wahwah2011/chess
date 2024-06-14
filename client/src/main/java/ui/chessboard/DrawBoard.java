@@ -213,19 +213,6 @@ public class DrawBoard {
         return chessBoard.hasPiece(pos);
     }
 
-    private boolean sameColor(ChessPosition position, String playerColor) {
-        ChessPiece curPiece = chessBoard.getPiece(position);
-        ChessGame.TeamColor color = null;
-        if (playerColor.equals("white")) {
-            color = ChessGame.TeamColor.WHITE;
-        }
-        else if (playerColor.equals("black")) {
-            color = ChessGame.TeamColor.BLACK;
-        }
-
-        return curPiece.getTeamColor().equals(color);
-    }
-
     private void printErrorMessage(String message, PrintStream out) {
         out.print(SET_TEXT_COLOR_RED);
         out.println(message);

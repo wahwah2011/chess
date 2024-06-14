@@ -56,10 +56,6 @@ public class ChessClient implements ServerMessageObserver {
         isLoggedIn = loggedIn;
     }
 
-    public boolean isInGame() {
-        return isInGame;
-    }
-
     public void setInGame(boolean inGame) {
         isInGame = inGame;
     }
@@ -98,14 +94,6 @@ public class ChessClient implements ServerMessageObserver {
 
     public ChessBoard getBoard() {
         return chessGame.getBoard();
-    }
-
-    public void setBoard(ChessBoard board) {
-        this.chessGame.setBoard(board);
-    }
-
-    public boolean isObservingGame() {
-        return observingGame;
     }
 
     public void setObservingGame(boolean observingGame) {
