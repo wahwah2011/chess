@@ -1,9 +1,6 @@
 package server;
 
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPosition;
-import chess.InvalidMoveException;
+import chess.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dataaccess.*;
@@ -75,50 +72,57 @@ public class WebSocketHandler {
         boolean isCheck = false;
         boolean isCheckmate = false;
         boolean observer = isObserver(gameID, username);
-
         if (!observer) {
-            ChessGame copyGame = gameData.getGame(gameID).game();
+            GameData game = gameData.getGame(gameID);
+            ChessGame copyGame = game.game();
+            String color = checkTeamColor(game, username);
             if (copyGame.isPlayable()) {
-                try {
-                    copyGame.makeMove(chessMove);
-                    //dumb hack to check if
-                    isCheckmate = copyGame.isInCheckmate(ChessGame.TeamColor.BLACK);
-                    checkTeam = "Black";
-                    if (!isCheckmate) {
-                        isCheckmate = copyGame.isInCheckmate(ChessGame.TeamColor.WHITE);
-                        checkTeam = "White";
-                    }
-                    if (isCheckmate) {
-                        isCheck = true;
-                    } else {
-                        isCheck = copyGame.isInCheck(ChessGame.TeamColor.BLACK);
+                ChessPiece movePiece = copyGame.getBoard().getPiece(chessMove.getStartPosition());
+                if (sameColor(movePiece, color)) {
+                    try {
+                        copyGame.makeMove(chessMove);
+                        //dumb hack to check if
+                        isCheckmate = copyGame.isInCheckmate(ChessGame.TeamColor.BLACK);
                         checkTeam = "Black";
+                        if (!isCheckmate) {
+                            isCheckmate = copyGame.isInCheckmate(ChessGame.TeamColor.WHITE);
+                            checkTeam = "White";
+                        }
+                        if (isCheckmate) {
+                            isCheck = true;
+                        }
+                        else {
+                            isCheck = copyGame.isInCheck(ChessGame.TeamColor.BLACK);
+                            checkTeam = "Black";
+                        }
+                        if (!isCheck) {
+                            isCheck = copyGame.isInCheck(ChessGame.TeamColor.WHITE);
+                            checkTeam = "White";
+                        }
+                        gameData.updateBoard(gameID, copyGame);
+                        //sends load_game to everyone
+                        String updatedGame = serializeGame(copyGame);
+                        LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, updatedGame);
+                        broadcastLoadGame(session, loadGameMessage, gameID);
+                        //Server sends a Notification message to all other clients in that game informing them what move was made.
+                        String moveNotification = generateMoveNotification(username, chessMove);
+                        NotificationMessage notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, moveNotification);
+                        broadcastNotification(session, notification, gameID);
+                        if (isCheckmate) {
+                            String checkmateMessage = generateCheckmateNotification(checkTeam);
+                            NotificationMessage checkmateNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkmateMessage);
+                            broadcastForfeit(checkmateNotification, gameID);
+                        } else if (isCheck) {
+                            String checkMessage = generateCheckNotification(checkTeam);
+                            NotificationMessage checkNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkMessage);
+                            broadcastForfeit(checkNotification, gameID);
+                        }
+                    } catch (InvalidMoveException e) {
+                        sendRemoteMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage()));
                     }
-                    if (!isCheck) {
-                        isCheck = copyGame.isInCheck(ChessGame.TeamColor.WHITE);
-                        checkTeam = "White";
-                    }
-                    gameData.updateBoard(gameID, copyGame);
-                    //sends load_game to everyone
-                    String updatedGame = serializeGame(copyGame);
-                    LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, updatedGame);
-                    broadcastLoadGame(session, loadGameMessage, gameID);
-
-                    //Server sends a Notification message to all other clients in that game informing them what move was made.
-                    String moveNotification = generateMoveNotification(username, chessMove);
-                    NotificationMessage notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, moveNotification);
-                    broadcastNotification(session, notification, gameID);
-                    if (isCheckmate) {
-                        String checkmateMessage = generateCheckmateNotification(checkTeam);
-                        NotificationMessage checkmateNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkmateMessage);
-                        broadcastForfeit(checkmateNotification, gameID);
-                    } else if (isCheck) {
-                        String checkMessage = generateCheckNotification(checkTeam);
-                        NotificationMessage checkNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkMessage);
-                        broadcastForfeit(checkNotification, gameID);
-                    }
-                } catch (InvalidMoveException e) {
-                    sendRemoteMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage()));
+                }
+                else {
+                    sendRemoteMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "That piece is not on your team."));
                 }
             } else {
                 sendRemoteMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Game has been forfeit by you or another player."));
@@ -297,6 +301,28 @@ public class WebSocketHandler {
             }
         }
         return observer;
+    }
+
+    private boolean sameColor(ChessPiece piece, String playerColor) {
+        String pieceColor = "";
+        if (piece.getTeamColor().equals(ChessGame.TeamColor.BLACK)) {
+            pieceColor = "black";
+        }
+        else if (piece.getTeamColor().equals(ChessGame.TeamColor.WHITE)) {
+            pieceColor = "white";
+        }
+        return pieceColor.equals(playerColor);
+    }
+
+    private String checkTeamColor(GameData game, String username) {
+        String color = "";
+        if (game.whiteUsername().equals(username)) {
+            color = "white";
+        }
+        else if (game.blackUsername().equals(username)) {
+            color = "black";
+        }
+        return color;
     }
 
 }

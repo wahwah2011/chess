@@ -23,11 +23,11 @@ public class WebsocketCommunicator extends Endpoint {
             this.session = container.connectToServer(this, uri);
 
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+                @Override
                 public void onMessage(String message) {
                     Gson gson = new GsonBuilder()
                             .registerTypeAdapter(ServerMessage.class, new ServerMessageDeserializer())
                             .create();
-
                     try {
                         ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
                         observer.notify(serverMessage);
