@@ -119,7 +119,7 @@ public class ChessGame {
                 ArrayList<ChessMove> possMoves = new ArrayList<>(validMoves(startPos));
                 //if not valid move
                 if (possMoves.isEmpty()) {
-                    throw new InvalidMoveException("That is not a valid move");
+                    throw new InvalidMoveException("You have no possible moves.");
                 }
                 //elif move.startposition.piece.getteam != teamTurn
                 else if (piece.getTeamColor() != teamTurn) {

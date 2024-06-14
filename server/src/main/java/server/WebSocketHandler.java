@@ -27,7 +27,7 @@ public class WebSocketHandler {
     private final SQLGameDAO gameData = new SQLGameDAO();
 
     @OnWebSocketMessage
-    public void onMessage(Session session, String msg) throws Exception {
+    public void onMessage(Session session, String msg) {
         try {
             Gson gson = new GsonBuilder()
                     .registerTypeAdapter(UserGameCommand.class, new UserGameCommandDeserializer())
@@ -80,7 +80,7 @@ public class WebSocketHandler {
             ChessGame copyGame = gameData.getGame(gameID).game();
             if (copyGame.isPlayable()) {
                 try {
-                    makeMove(copyGame, chessMove);
+                    copyGame.makeMove(chessMove);
                     //dumb hack to check if
                     isCheckmate = copyGame.isInCheckmate(ChessGame.TeamColor.BLACK);
                     checkTeam = "Black";
@@ -154,11 +154,16 @@ public class WebSocketHandler {
         boolean observer = isObserver(gameID, username);
 
         if (!observer) {
-            copyGame.setPlayable(false);
-            gameData.updateBoard(gameID, copyGame);
-            String resignationNotice = generateResignNotification(username);
-            NotificationMessage notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, resignationNotice);
-            broadcastForfeit(notification, gameID);
+            if (copyGame.isPlayable()) {
+                copyGame.setPlayable(false);
+                gameData.updateBoard(gameID, copyGame);
+                String resignationNotice = generateResignNotification(username);
+                NotificationMessage notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, resignationNotice);
+                broadcastForfeit(notification, gameID);
+            }
+            else {
+                sendRemoteMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Game has already been forfeit."));
+            }
         }
         else {
             sendRemoteMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Observers cannot resign."));
@@ -267,10 +272,10 @@ public class WebSocketHandler {
         return (checkTeam + " team is in check!");
     }
 
-    private ChessGame makeMove(ChessGame game, ChessMove move) throws InvalidMoveException {
+/*    private ChessGame makeMove(ChessGame game, ChessMove move) {
         game.makeMove(move);
         return game;
-    }
+    }*/
 
     public String convertToPositionString(ChessPosition chessPosition) {
         int row = chessPosition.getRow();
@@ -286,8 +291,14 @@ public class WebSocketHandler {
     private boolean isObserver(Integer gameID, String username) throws DataAccessException {
         boolean observer = false;
         GameData game = gameData.getGame(gameID);
-        if (!game.blackUsername().equals(username) && !game.whiteUsername().equals(username)) {
-            observer = true;
+        if (game.blackUsername() != null) {
+            if (!game.blackUsername().equals(username)) {
+                if (game.whiteUsername() != null) {
+                    if (!game.whiteUsername().equals(username)) {
+                        observer = true;
+                    }
+                }
+            }
         }
         return observer;
     }
