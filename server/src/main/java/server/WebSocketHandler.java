@@ -284,15 +284,16 @@ public class WebSocketHandler {
     }
 
     private boolean isObserver(Integer gameID, String username) throws DataAccessException {
-        boolean observer = false;
+        boolean observer = true;
         GameData game = gameData.getGame(gameID);
         if (game.blackUsername() != null) {
-            if (!game.blackUsername().equals(username)) {
-                if (game.whiteUsername() != null) {
-                    if (!game.whiteUsername().equals(username)) {
-                        observer = true;
-                    }
-                }
+            if (game.blackUsername().equals(username)) {
+                observer = false;
+            }
+        }
+        if (game.whiteUsername() != null) {
+            if (game.whiteUsername().equals(username)) {
+                observer = false;
             }
         }
         return observer;

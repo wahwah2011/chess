@@ -150,6 +150,7 @@ public class PostLoginUI {
                 gameNumber = assignGameID(index,games);
                 if (gameNumber != null) {
                     client.setGameName(games.get(index).gameName());
+                    client.setGameID(assignGameID(index,games));
                 }
             } catch (Exception e) {
                 client.printErrorMessage("Please enter an existing game number!");
@@ -157,7 +158,7 @@ public class PostLoginUI {
         }
         serverFacade.observeGame(client.getAuthToken(),gameNumber);
         System.out.println("Observing game " + client.getGameName() + ".\n");
-        client.setObservingGame(true);
+        client.setInGame(true);
     }
 
 
